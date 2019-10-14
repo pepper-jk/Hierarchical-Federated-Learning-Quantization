@@ -1,1 +1,6 @@
 .DS_Store
+
+# exclude everything
+logs/*
+data/mnist/*
+data/cifar/*
