@@ -72,44 +72,50 @@ if __name__ == '__main__':
     print_every = 2
     val_loss_pre, counter = 0, 0
 
-    for epoch in tqdm(range(args.epochs)):
-        local_weights, local_losses = [], []
-        print(f'\n | Global Training Round : {epoch+1} |\n')
+    for epoch in tqdm(range(args.epochs)):  # global training epochs
+        local_weights, local_losses = [], [] # init empty local weights and local losses
+        print(f'\n | Global Training Round : {epoch+1} |\n') # starting with | Global Training Round : 1 |
 
+        """
+        model.train() tells your model that you are training the model. So effectively layers like dropout, batchnorm etc. which behave different on the train and test procedures know what is going on and hence can behave accordingly.
+
+        More details: It sets the mode to train (see source code). You can call either model.eval() or model.train(mode=False) to tell that you are testing. It is somewhat intuitive to expect train function to train model but it does not do that. It just sets the mode.
+        """
         global_model.train()
-        m = max(int(args.frac * args.num_users), 1)
-        idxs_users = np.random.choice(range(args.num_users), m, replace=False)
+        m = max(int(args.frac * args.num_users), 1) # C = args.frac. Setting number of clients m for training
+        idxs_users = np.random.choice(range(args.num_users), m, replace=False) # args.num_users=100 total clients. Choosing a random array of indices. Subset of clients.
 
-        for idx in idxs_users:
+        for idx in idxs_users: # For each client in the subset.
             local_model = LocalUpdate(args=args, dataset=train_dataset,
                                       idxs=user_groups[idx], logger=logger)
-            w, loss = local_model.update_weights(
-                model=copy.deepcopy(global_model), global_round=epoch)
+            w, loss = local_model.update_weights( # update_weights() contain multiple prints
+                model=copy.deepcopy(global_model), global_round=epoch) # w = local model weights
             local_weights.append(copy.deepcopy(w))
             local_losses.append(copy.deepcopy(loss))
 
-        # update global weights
+        # Averaging m local client weights
         global_weights = average_weights(local_weights)
 
         # update global weights
         global_model.load_state_dict(global_weights)
 
         loss_avg = sum(local_losses) / len(local_losses)
-        train_loss.append(loss_avg)
+        train_loss.append(loss_avg) # Performance measure
 
         # Calculate avg training accuracy over all users at every epoch
         list_acc, list_loss = [], []
-        global_model.eval()
-        for c in range(args.num_users):
+        global_model.eval() # must set your model into evaluation mode when computing model output values if dropout or bach norm used for training.
+
+        for c in range(args.num_users): # 0 to 99
             local_model = LocalUpdate(args=args, dataset=train_dataset,
                                       idxs=user_groups[idx], logger=logger)
             acc, loss = local_model.inference(model=global_model)
             list_acc.append(acc)
             list_loss.append(loss)
-        train_accuracy.append(sum(list_acc)/len(list_acc))
+        train_accuracy.append(sum(list_acc)/len(list_acc)) # Performance measure
 
         # print global training loss after every 'i' rounds
-        if (epoch+1) % print_every == 0:
+        if (epoch+1) % print_every == 0: # If print_every=2, => print every 2 rounds
             print(f' \nAvg Training Stats after {epoch+1} global rounds:')
             print(f'Training Loss : {np.mean(np.array(train_loss))}')
             print('Train Accuracy: {:.2f}% \n'.format(100*train_accuracy[-1]))
