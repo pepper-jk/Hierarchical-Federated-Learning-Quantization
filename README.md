@@ -1,6 +1,6 @@
 # Federated-Learning (PyTorch)
 
-Implementation of the vanilla federated learning paper : [Communication-Efficient Learning of Deep Networks from Decentralized Data](https://arxiv.org/abs/1602.05629).
+Implementation of both hierarchical and vanilla federated learning based on the paper : [Communication-Efficient Learning of Deep Networks from Decentralized Data](https://arxiv.org/abs/1602.05629).
 Blog Post: https://ai.googleblog.com/2017/04/federated-learning-collaborative.html
 
 Experiments are produced on MNIST, Fashion MNIST and CIFAR10 (both IID and non-IID). In case of non-IID, the data amongst the users can be split equally or unequally.
@@ -9,9 +9,13 @@ Since the purpose of these experiments are to illustrate the effectiveness of th
 
 ## Requirments
 Install all the packages from requirments.txt
-* Python3
-* Pytorch
-* Torchvision
+* Python=3.7.3
+* Pytorch=1.2.0
+* Torchvision=0.4.0
+* Numpy=1.15.4
+* Tensorboardx=1.4
+* Matplotlib=3.0.1
+
 
 ## Data
 * Download train and test datasets manually or they will be automatically downloaded from torchvision datasets.
@@ -23,11 +27,11 @@ The baseline experiment trains the model in the conventional way.
 
 * To run the baseline experiment with MNIST on MLP using CPU:
 ```
-python baseline_main --model=mlp --dataset=mnist --gpu=None --epochs=10
+python baseline_main.py --model=mlp --dataset=mnist --gpu=None --epochs=10
 ```
 * Or to run it on GPU (eg: if gpu:0 is available):
 ```
-python baseline_main --model=mlp --dataset=mnist --gpu=0 --epochs=10
+python baseline_main.py --model=mlp --dataset=mnist --gpu=0 --epochs=10
 ```
 -----
 
@@ -35,11 +39,23 @@ Federated experiment involves training a global model using many local models.
 
 * To run the federated experiment with CIFAR on CNN (IID):
 ```
-python federated_main --model=cnn --dataset=cifar --gpu=0 --iid=1 --epochs=10
+python federated_main.py --model=cnn --dataset=cifar --gpu=0 --iid=1 --epochs=10
 ```
 * To run the same experiment under non-IID condition:
 ```
-python federated_main --model=cnn --dataset=cifar --gpu=0 --iid=0 --epochs=10
+python federated_main.py --model=cnn --dataset=cifar --gpu=0 --iid=0 --epochs=10
+```
+-----
+
+Hierarchical Federated experiments involve training a global model using different clusters with many local models.
+
+* To run the hierarchical federated experiment with MNIST on MLP (IID):
+```
+python federated-hierarchical_main.py --model=mlp --dataset=mnist --iid=1 --epochs=10 --local_ep=3
+```
+* To run the same experiment under non-IID condition:
+```
+python federated-hierarchical_main.py --model=mlp --dataset=mnist --iid=0 --epochs=10 --local_ep=3
 ```
 
 You can change the default values of other parameters to simulate different conditions. Refer to the options section.
