@@ -9,7 +9,7 @@ def args_parser():
     parser = argparse.ArgumentParser()
 
     # federated arguments (Notation for the arguments followed from paper)
-    parser.add_argument('--epochs', type=int, default=10,
+    parser.add_argument('--epochs', type=int, default=5,
                         help="number of rounds of training")
     parser.add_argument('--num_users', type=int, default=100,
                         help="number of users: K")
@@ -62,7 +62,8 @@ def args_parser():
     parser.add_argument('--seed', type=int, default=1, help='random seed')
 
     # Add arguments
-    parser.add_argument('--num_clusters', type=int, default=2, help='verbose')
+    parser.add_argument('--num_clusters', type=int, default=2, help='the number of clusters')
+    parser.add_argument('--test_acc', type=int, default=95, help='target test accuracy')
 
     args = parser.parse_args()
     return args

@@ -50,12 +50,12 @@ def fl_train(args, train_dataset, cluster_global_model, cluster, usergrp, epochs
     cluster_train_loss, cluster_train_accuracy = [], []
     cluster_val_acc_list, cluster_net_list = [], []
     cluster_cv_loss, cluster_cv_acc = [], []
-    print_every = 2
+    # print_every = 1
     cluster_val_loss_pre, counter = 0, 0
 
-    for epoch in tqdm(range(epochs)):
+    for epoch in range(epochs):
         cluster_local_weights, cluster_local_losses = [], []
-        print(f'\n | Cluster Training Round : {epoch+1} |\n')
+        # print(f'\n | Cluster Training Round : {epoch+1} |\n')
 
         cluster_global_model.train()
         m = max(int(args.frac * len(cluster)), 1)
@@ -67,6 +67,7 @@ def fl_train(args, train_dataset, cluster_global_model, cluster, usergrp, epochs
             cluster_w, cluster_loss = cluster_local_model.update_weights(model=copy.deepcopy(cluster_global_model), global_round=epoch)
             cluster_local_weights.append(copy.deepcopy(cluster_w))
             cluster_local_losses.append(copy.deepcopy(cluster_loss))
+            print('| Global Round : {} | User : {} | \tLoss: {:.6f}'.format(epoch, idx, cluster_loss))
 
         # averaging global weights
         cluster_global_weights = average_weights(cluster_local_weights)
@@ -151,8 +152,10 @@ if __name__ == '__main__':
     cv_loss, cv_acc = [], []
     print_every = 1
     val_loss_pre, counter = 0, 0
+    testacc_check, epoch = 0, 0
 
-    for epoch in tqdm(range(args.epochs)):
+    # for epoch in tqdm(range(args.epochs)):
+    while testacc_check < args.test_acc:
         local_weights, local_losses, local_accuracies= [], [], []
         print(f'\n | Global Training Round : {epoch+1} |\n')
         
@@ -160,12 +163,12 @@ if __name__ == '__main__':
         global_model.train()
         
         # Cluster A
-        A_weights, A_losses = fl_train(args, train_dataset, cluster_modelA, A1, user_groupsA, 2)
+        A_weights, A_losses = fl_train(args, train_dataset, cluster_modelA, A1, user_groupsA, args.epochs)
         local_weights.append(copy.deepcopy(A_weights))
         local_losses.append(copy.deepcopy(A_losses))
         
         # Cluster B
-        B_weights, B_losses = fl_train(args, train_dataset, cluster_modelB, B1, user_groupsB, 2)
+        B_weights, B_losses = fl_train(args, train_dataset, cluster_modelB, B1, user_groupsB, args.epochs)
         local_weights.append(copy.deepcopy(B_weights))
         local_losses.append(copy.deepcopy(B_losses))
         
@@ -190,20 +193,31 @@ if __name__ == '__main__':
             list_acc.append(acc)
             list_loss.append(loss)
         train_accuracy.append(sum(list_acc)/len(list_acc))
-        
+        # Add
+        testacc_check = 100*train_accuracy[-1]
+        epoch = epoch + 1
+
         # print global training loss after every 'i' rounds
         if (epoch+1) % print_every == 0:
             print(f' \nAvg Training Stats after {epoch+1} global rounds:')
             print(f'Training Loss : {np.mean(np.array(train_loss))}')
             print('Train Accuracy: {:.2f}% \n'.format(100*train_accuracy[-1]))
-    #         print('Train Accuracy: {:.2f}% \n'.format(100*train_accuracy[-1][0]))
+            
 
     print('\n Total Run Time: {0:0.4f}'.format(time.time()-start_time))
 
     # Test inference after completion of training
     test_acc, test_loss = test_inference(args, global_model, test_dataset)
 
-    print(f' \n Results after {args.epochs} global rounds of training:')
+    # print(f' \n Results after {args.epochs} global rounds of training:')
+    print(f"\nAvg Training Stats after {epoch} global rounds:")
     print("|---- Avg Train Accuracy: {:.2f}%".format(100*train_accuracy[-1]))
     print("|---- Test Accuracy: {:.2f}%".format(100*test_acc))
 
+    # Saving the objects train_loss and train_accuracy:
+    file_name = '../save/objects/{}_{}_{}_C[{}]_iid[{}]_E[{}]_B[{}].pkl'.\
+    format(args.dataset, args.model, epoch, args.frac, args.iid,
+           args.local_ep, args.local_bs)
+
+    with open(file_name, 'wb') as f:
+        pickle.dump([train_loss, train_accuracy], f)
