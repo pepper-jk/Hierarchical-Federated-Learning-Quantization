@@ -61,6 +61,11 @@ if __name__ == '__main__':
     global_model.to(device)
     global_model.train()
     print(global_model)
+    
+    # MODEL PARAM SUMMARY
+    pytorch_total_params = sum(p.numel() for p in global_model.parameters())
+    print("Model total number of parameters: ", pytorch_total_params)
+    # print(global_model.parameters())
 
     # copy weights
     global_weights = global_model.state_dict()
@@ -69,10 +74,12 @@ if __name__ == '__main__':
     train_loss, train_accuracy = [], []
     val_acc_list, net_list = [], []
     cv_loss, cv_acc = [], []
-    print_every = 2
+    print_every = 1
     val_loss_pre, counter = 0, 0
+    testacc_check, epoch = 0, 0
 
-    for epoch in tqdm(range(args.epochs)):  # global training epochs
+    # for epoch in tqdm(range(args.epochs)):  # global training epochs
+    while testacc_check < args.test_acc:
         local_weights, local_losses = [], [] # init empty local weights and local losses
         print(f'\n | Global Training Round : {epoch+1} |\n') # starting with | Global Training Round : 1 |
 
@@ -110,7 +117,7 @@ if __name__ == '__main__':
 
         for c in range(args.num_users): # 0 to 99
             local_model = LocalUpdate(args=args, dataset=train_dataset,
-                                      # idxs=user_groups[idx], logger=logger)
+                                      idxs=user_groups[idx], logger=logger)
             # Fix error idxs=user_groups[idx] to idxs=user_groups[c]                                      
             local_model = LocalUpdate(args=args, dataset=train_dataset,
                                       idxs=user_groups[idx], logger=logger)
@@ -118,6 +125,10 @@ if __name__ == '__main__':
             list_acc.append(acc)
             list_loss.append(loss)
         train_accuracy.append(sum(list_acc)/len(list_acc)) # Performance measure
+
+        # Add
+        testacc_check = 100*train_accuracy[-1]
+        epoch = epoch + 1
 
         # print global training loss after every 'i' rounds
         if (epoch+1) % print_every == 0: # If print_every=2, => print every 2 rounds
@@ -128,7 +139,7 @@ if __name__ == '__main__':
     # Test inference after completion of training
     test_acc, test_loss = test_inference(args, global_model, test_dataset)
 
-    print(f' \n Results after {args.epochs} global rounds of training:')
+    print(f' \n Results after {epoch} global rounds of training:')
     print("|---- Avg Train Accuracy: {:.2f}%".format(100*train_accuracy[-1]))
     print("|---- Test Accuracy: {:.2f}%".format(100*test_acc))
 

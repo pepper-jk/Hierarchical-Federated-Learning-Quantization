@@ -27,11 +27,11 @@ The baseline experiment trains the model in the conventional way.
 
 * To run the baseline experiment with MNIST on MLP using CPU:
 ```
-python baseline_main.py --model=mlp --dataset=mnist --gpu=None --epochs=10
+python baseline_main.py --model=mlp --dataset=mnist --epochs=10
 ```
 * Or to run it on GPU (eg: if gpu:0 is available):
 ```
-python baseline_main.py --model=mlp --dataset=mnist --gpu=0 --epochs=10
+python baseline_main.py --model=mlp --dataset=mnist --gpu=1 --epochs=10
 ```
 -----
 
@@ -39,11 +39,11 @@ Federated experiment involves training a global model using many local models.
 
 * To run the federated experiment with CIFAR on CNN (IID):
 ```
-python federated_main.py --model=cnn --dataset=cifar --gpu=0 --iid=1 --epochs=10
+python federated_main.py --local_ep=1 --local_bs=10 --frac=0.1 --model=cnn --dataset=cifar --iid=1 --test_acc=99 --gpu=1
 ```
 * To run the same experiment under non-IID condition:
 ```
-python federated_main.py --model=cnn --dataset=cifar --gpu=0 --iid=0 --epochs=10
+python federated_main.py --local_ep=1 --local_bs=10 --frac=0.1 --model=cnn --dataset=cifar --iid=0 --test_acc=99 --gpu=1
 ```
 -----
 
@@ -51,11 +51,11 @@ Hierarchical Federated experiments involve training a global model using differe
 
 * To run the hierarchical federated experiment with MNIST on MLP (IID):
 ```
-python federated-hierarchical_main.py --model=mlp --dataset=mnist --iid=1 --epochs=10 --local_ep=3
+python federated-hierarchical_main.py --local_ep=1 --local_bs=10 --frac=0.1 --Cepochs=5 --model=mlp --dataset=mnist --iid=1 --num_cluster=2 --test_acc=97  --gpu=1
 ```
 * To run the same experiment under non-IID condition:
 ```
-python federated-hierarchical_main.py --model=mlp --dataset=mnist --iid=0 --epochs=10 --local_ep=3
+python federated-hierarchical_main.py --local_ep=1 --local_bs=10 --frac=0.1 --Cepochs=5 --model=mlp --dataset=mnist --iid=0 --num_cluster=2 --test_acc=97  --gpu=1
 ```
 
 You can change the default values of other parameters to simulate different conditions. Refer to the options section.
@@ -78,6 +78,8 @@ The default values for various paramters parsed to the experiment are given in `
 * ```--local_ep:``` Number of local training epochs in each user. Default is 10.
 * ```--local_bs:``` Batch size of local updates in each user. Default is 10.
 * ```--unequal:```  Used in non-iid setting. Option to split the data amongst users equally or unequally. Default set to 0 for equal splits. Set to 1 for unequal splits.
+* ```--num_clusters:```  Number of clusters in the hierarchy.
+* ```--Cepochs:```  Number of rounds of training in each cluster.
 
 ## Results on MNIST
 #### Baseline Experiment:
