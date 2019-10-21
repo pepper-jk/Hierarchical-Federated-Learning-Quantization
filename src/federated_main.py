@@ -116,11 +116,11 @@ if __name__ == '__main__':
         global_model.eval() # must set your model into evaluation mode when computing model output values if dropout or bach norm used for training.
 
         for c in range(args.num_users): # 0 to 99
-            local_model = LocalUpdate(args=args, dataset=train_dataset,
-                                      idxs=user_groups[idx], logger=logger)
+            # local_model = LocalUpdate(args=args, dataset=train_dataset,
+                                      # idxs=user_groups[idx], logger=logger)
             # Fix error idxs=user_groups[idx] to idxs=user_groups[c]                                      
             local_model = LocalUpdate(args=args, dataset=train_dataset,
-                                      idxs=user_groups[idx], logger=logger)
+                                      idxs=user_groups[c], logger=logger)
             acc, loss = local_model.inference(model=global_model)
             list_acc.append(acc)
             list_loss.append(loss)
@@ -145,7 +145,7 @@ if __name__ == '__main__':
 
     # Saving the objects train_loss and train_accuracy:
     file_name = '../save/objects/FL_{}_{}_{}_C[{}]_iid[{}]_E[{}]_B[{}].pkl'.\
-        format(args.dataset, args.model, args.epochs, args.frac, args.iid,
+        format(args.dataset, args.model, epoch, args.frac, args.iid,
                args.local_ep, args.local_bs)
 
     with open(file_name, 'wb') as f:
