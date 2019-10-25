@@ -52,7 +52,7 @@ if __name__ == '__main__':
         len_in = 1
         for x in img_size:
             len_in *= x
-            global_model = MLP(dim_in=len_in, dim_hidden=64,
+            global_model = MLP(dim_in=len_in, dim_hidden=args.mlpdim,
                                dim_out=args.num_classes)
     else:
         exit('Error: unrecognized model')
@@ -76,10 +76,12 @@ if __name__ == '__main__':
     cv_loss, cv_acc = [], []
     print_every = 1
     val_loss_pre, counter = 0, 0
-    testacc_check, epoch = 0, 0
+    testacc_check, epoch = 0, 0 
 
     # for epoch in tqdm(range(args.epochs)):  # global training epochs
-    while testacc_check < args.test_acc:
+    # for epoch in range(args.epochs):
+    while testacc_check < args.test_acc or epoch < args.epochs:
+    # while testacc_check < args.test_acc:
         local_weights, local_losses = [], [] # init empty local weights and local losses
         print(f'\n | Global Training Round : {epoch+1} |\n') # starting with | Global Training Round : 1 |
 
@@ -117,7 +119,7 @@ if __name__ == '__main__':
 
         for c in range(args.num_users): # 0 to 99
             # local_model = LocalUpdate(args=args, dataset=train_dataset,
-                                      # idxs=user_groups[idx], logger=logger)
+            #                           idxs=user_groups[idx], logger=logger)
             # Fix error idxs=user_groups[idx] to idxs=user_groups[c]                                      
             local_model = LocalUpdate(args=args, dataset=train_dataset,
                                       idxs=user_groups[c], logger=logger)
@@ -144,8 +146,8 @@ if __name__ == '__main__':
     print("|---- Test Accuracy: {:.2f}%".format(100*test_acc))
 
     # Saving the objects train_loss and train_accuracy:
-    file_name = '../save/objects/FL_{}_{}_{}_C[{}]_iid[{}]_E[{}]_B[{}].pkl'.\
-        format(args.dataset, args.model, epoch, args.frac, args.iid,
+    file_name = '../save/objects/FL_{}_{}_{}_lr[{}]_C[{}]_iid[{}]_E[{}]_B[{}].pkl'.\
+        format(args.dataset, args.model, epoch, args.lr, args.frac, args.iid,
                args.local_ep, args.local_bs)
 
     with open(file_name, 'wb') as f:

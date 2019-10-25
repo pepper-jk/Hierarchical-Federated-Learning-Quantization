@@ -65,6 +65,7 @@ def args_parser():
     parser.add_argument('--num_clusters', type=int, default=2, help='the number of clusters')
     parser.add_argument('--test_acc', type=int, default=95, help='target test accuracy')
     parser.add_argument('--Cepochs', type=int, default=5,help="number of rounds of training in each cluster")
+    parser.add_argument('--mlpdim', type=int, default=200,help="MLP model hidden dimension")
 
     args = parser.parse_args()
     return args

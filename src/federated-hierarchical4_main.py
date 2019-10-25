@@ -38,7 +38,7 @@ def build_model(args, train_dataset):
         len_in = 1
         for x in img_size:
             len_in *= x
-            global_model = MLP(dim_in=len_in, dim_hidden=64,
+            global_model = MLP(dim_in=len_in, dim_hidden=args.mlpdim,
                                dim_out=args.num_classes)
     else:
         exit('Error: unrecognized model')
@@ -61,7 +61,9 @@ def fl_train(args, train_dataset, cluster_global_model, cluster, usergrp, epochs
 
         cluster_global_model.train()
         # m = max(int(args.frac * len(cluster)), 1)
-        m = max(int(math.ceil(args.frac * len(cluster))), 1)
+        # m = max(int(math.ceil(args.frac * len(cluster))), 1)
+        m = min(int(len(cluster)), 10)
+        # print("=== m ==== ", m)
         idxs_users = np.random.choice(cluster, m, replace=False)
 
 
@@ -85,17 +87,20 @@ def fl_train(args, train_dataset, cluster_global_model, cluster, usergrp, epochs
         # Calculate avg training accuracy over all users at every epoch
         list_acc, list_loss = [], []
         cluster_global_model.eval()
-        for c in range(len(cluster)):
-            # local_model = LocalUpdate(args=args, dataset=train_dataset,
-            #                           idxs=user_groups[c], logger=logger)
-            local_model = LocalUpdate(args=args, dataset=train_dataset,
-                                      idxs=user_groups[idx], logger=logger)
-            acc, loss = local_model.inference(model=global_model)
+        # C = np.random.choice(cluster, m, replace=False) # random set of clients
+        # print("C: ", C)
+        # for c in C:
+        # for c in range(len(cluster)):     
+        for c in idxs_users:   
+            cluster_local_model = LocalUpdate(args=args, dataset=train_dataset, idxs=usergrp[c], logger=logger)
+            # local_model = LocalUpdate(args=args, dataset=train_dataset,idxs=user_groups[idx], logger=logger)
+            acc, loss = cluster_local_model.inference(model=global_model)
             list_acc.append(acc)
             list_loss.append(loss)
-        cluster_train_acc.append(sum(list_acc)/len(list_acc))
+        # cluster_train_acc.append(sum(list_acc)/len(list_acc))
         # Add
-    print("Cluster accuracy: ", 100*cluster_train_acc[-1]) 
+    # print("Cluster accuracy: ", 100*cluster_train_acc[-1]) 
+    print("Cluster accuracy: ", 100*sum(list_acc)/len(list_acc)) 
 
     return cluster_global_model, cluster_global_weights, cluster_loss_avg
     
@@ -120,6 +125,8 @@ if __name__ == '__main__':
     # load dataset and user groups
     train_dataset, test_dataset, user_groupsold = get_dataset(args)
 
+    # user_groups = user_groupsold
+    # keylist = list(user_groups.keys())
     # ======= Shuffle dataset ======= 
     keys =  list(user_groupsold.keys())
     random.shuffle(keys)
@@ -130,29 +137,34 @@ if __name__ == '__main__':
     keylist = list(user_groups.keys())
     print("keylist: ", keylist)
     # ======= Splitting into clusters. FL groups ======= 
-    cluster_size = int(args.num_users / args.num_clusters)
+    # cluster_size = int(args.num_users / args.num_clusters)    
+    cluster_size = 50
     print("Each cluster size: ", cluster_size)
 
     # Cluster 1
-    # A1 = np.arange(cluster_size, dtaype=int)
-    A1 = keylist[:cluster_size]
+    # A1 = keylist[:cluster_size]
+    A1 = np.random.choice(keylist, cluster_size, replace=False)
     print("A1: ", A1)
     user_groupsA = {k:user_groups[k] for k in A1 if k in user_groups}
     print("Size of cluster 1: ", len(user_groupsA))
     # Cluster 2
-    # B1 = np.arange(cluster_size, cluster_size+cluster_size, dtype=int)
-    B1 = keylist[cluster_size:2*cluster_size]
+    # B1 = keylist[cluster_size:2*cluster_size]
+    B1 = np.random.choice(keylist, cluster_size, replace=False)    
     print("B1: ", B1)
     user_groupsB = {k:user_groups[k] for k in B1 if k in user_groups}
     print("Size of cluster 2: ", len(user_groupsB))
-    # # Cluster 3
-    # C1 = np.arange(2*cluster_size, 3*cluster_size, dtype=int)
-    # user_groupsC = {k:user_groups[k] for k in C1 if k in user_groups}
-    # print("Size of cluster 3: ", len(user_groupsC))
-    # # Cluster 4
-    # D1 = np.arange(3*cluster_size, 4*cluster_size, dtype=int)
-    # user_groupsD = {k:user_groups[k] for k in D1 if k in user_groups}
-    # print("Size of cluster 4: ", len(user_groupsD))
+    # Cluster 3
+    # C1 = keylist[2*cluster_size:3*cluster_size]
+    C1 = np.random.choice(keylist, cluster_size, replace=False)
+    print("C1: ", C1)
+    user_groupsC = {k:user_groups[k] for k in C1 if k in user_groups}
+    print("Size of cluster 3: ", len(user_groupsC))
+    # Cluster 4
+    # D1 = keylist[3*cluster_size:4*cluster_size]
+    D1 = np.random.choice(keylist, cluster_size, replace=False)
+    print("D1: ", D1)
+    user_groupsD = {k:user_groups[k] for k in D1 if k in user_groups}
+    print("Size of cluster 4: ", len(user_groupsD))
 
     # MODEL PARAM SUMMARY
     global_model = build_model(args, train_dataset)
@@ -185,19 +197,18 @@ if __name__ == '__main__':
     cluster_modelB.train()
     # copy weights
     cluster_modelB_weights = cluster_modelB.state_dict()
-
-    # # Cluster C
-    # cluster_modelC = build_model(args, train_dataset)
-    # cluster_modelC.to(device)
-    # cluster_modelC.train()
-    # # copy weights
-    # cluster_modelC_weights = cluster_modelC.state_dict()
-    # # Cluster D
-    # cluster_modelD = build_model(args, train_dataset)
-    # cluster_modelD.to(device)
-    # cluster_modelD.train()
-    # # copy weights
-    # cluster_modelD_weights = cluster_modelD.state_dict()
+    # Cluster C
+    cluster_modelC = build_model(args, train_dataset)
+    cluster_modelC.to(device)
+    cluster_modelC.train()
+    # copy weights
+    cluster_modelC_weights = cluster_modelC.state_dict()
+    # Cluster D
+    cluster_modelD = build_model(args, train_dataset)
+    cluster_modelD.to(device)
+    cluster_modelD.train()
+    # copy weights
+    cluster_modelD_weights = cluster_modelD.state_dict()
 
 
     train_loss, train_accuracy = [], []
@@ -205,10 +216,13 @@ if __name__ == '__main__':
     cv_loss, cv_acc = [], []
     print_every = 1
     val_loss_pre, counter = 0, 0
-    testacc_check, epoch, idx = 0, 0, 0
+    testacc_check, epoch = 0, 0 
+    idx = np.random.randint(0,99)
 
-    for epoch in tqdm(range(args.epochs)):
-    # while testacc_check < args.test_acc:
+    # for epoch in tqdm(range(args.epochs)):
+    # for epoch in range(args.epochs):
+    # while testacc_check < args.test_acc or epoch < args.epochs:
+    while epoch < args.epochs:        
         local_weights, local_losses, local_accuracies= [], [], []
         print(f'\n | Global Training Round : {epoch+1} |\n')
         
@@ -225,15 +239,16 @@ if __name__ == '__main__':
         local_weights.append(copy.deepcopy(B_weights))
         local_losses.append(copy.deepcopy(B_losses))
         cluster_modelB = B_model 
-
-        # # Cluster C
-        # C_weights, C_losses = fl_train(args, train_dataset, cluster_modelC, C1, user_groupsC, args.Cepochs)
-        # local_weights.append(copy.deepcopy(C_weights))
-        # local_losses.append(copy.deepcopy(C_losses))        
-        # # Cluster D
-        # D_weights, D_losses = fl_train(args, train_dataset, cluster_modelD, D1, user_groupsD, args.Cepochs)
-        # local_weights.append(copy.deepcopy(D_weights))
-        # local_losses.append(copy.deepcopy(D_losses))
+        # Cluster C
+        C_model, C_weights, C_losses = fl_train(args, train_dataset, cluster_modelC, C1, user_groupsC, args.Cepochs)
+        local_weights.append(copy.deepcopy(C_weights))
+        local_losses.append(copy.deepcopy(C_losses))   
+        cluster_modelC = C_model      
+        # Cluster D
+        D_model, D_weights, D_losses = fl_train(args, train_dataset, cluster_modelD, D1, user_groupsD, args.Cepochs)
+        local_weights.append(copy.deepcopy(D_weights))
+        local_losses.append(copy.deepcopy(D_losses))
+        cluster_modelD = D_model 
         
         
         # averaging global weights
@@ -251,8 +266,12 @@ if __name__ == '__main__':
         global_model.eval()
         # print("========== idx ========== ", idx)
         for c in range(args.num_users):
+        # for c in range(cluster_size):
+        # C = np.random.choice(keylist, int(args.frac * args.num_users), replace=False) # random set of clients
+        # print("C: ", C)
+        # for c in C:
             local_model = LocalUpdate(args=args, dataset=train_dataset,
-                                      idxs=user_groups[idx], logger=logger)
+                                      idxs=user_groups[c], logger=logger)
             acc, loss = local_model.inference(model=global_model)
             list_acc.append(acc)
             list_loss.append(loss)
@@ -279,8 +298,8 @@ if __name__ == '__main__':
     print("|---- Test Accuracy: {:.2f}%".format(100*test_acc))
 
     # Saving the objects train_loss and train_accuracy:
-    file_name = '../save/objects/HFL_{}_{}_{}_C[{}]_iid[{}]_E[{}]_B[{}].pkl'.\
-    format(args.dataset, args.model, epoch, args.frac, args.iid,
+    file_name = '../save/objects/HFL4_{}_{}_{}_lr[{}]_C[{}]_iid[{}]_E[{}]_B[{}].pkl'.\
+    format(args.dataset, args.model, epoch, args.lr, args.frac, args.iid,
            args.local_ep, args.local_bs)
 
     with open(file_name, 'wb') as f:
