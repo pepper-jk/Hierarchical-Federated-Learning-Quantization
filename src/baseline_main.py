@@ -13,13 +13,16 @@ from utils import get_dataset
 from options import args_parser
 from update import test_inference
 from models import MLP, CNNMnist, CNNFashion_Mnist, CNNCifar
-
+import pickle
+import time
 
 if __name__ == '__main__':
     args = args_parser()
     if args.gpu:
         torch.cuda.set_device(args.gpu)
     device = 'cuda' if args.gpu else 'cpu'
+
+    start_time = time.time()
 
     # load datasets
     train_dataset, test_dataset, _ = get_dataset(args)
@@ -84,15 +87,29 @@ if __name__ == '__main__':
         print('\nTrain loss:', loss_avg)
         epoch_loss.append(loss_avg)
 
-    # Plot loss
-    plt.figure()
-    plt.plot(range(len(epoch_loss)), epoch_loss)
-    plt.xlabel('epochs')
-    plt.ylabel('Train loss')
-    plt.savefig('../save/nn_{}_{}_{}.png'.format(args.dataset, args.model,
-                                                 args.epochs))
 
     # testing
     test_acc, test_loss = test_inference(args, global_model, test_dataset)
     print('Test on', len(test_dataset), 'samples')
     print("Test Accuracy: {:.2f}%".format(100*test_acc))
+
+
+    # Saving the objects train_loss, test_acc, test_loss:
+    file_name = '../save/objects/BaseSGD_{}_{}_epoch[{}]_lr[{}]_iid[{}].pkl'.\
+        format(args.dataset, args.model, epoch, args.lr, args.iid)
+
+    with open(file_name, 'wb') as f:
+        pickle.dump([epoch_loss, test_acc, test_loss], f)
+
+    print('\n Total Run Time: {0:0.4f}'.format(time.time()-start_time))
+
+
+    # # Plot loss
+    # plt.figure()
+    # plt.plot(range(len(epoch_loss)), epoch_loss)
+    # plt.xlabel('epochs')
+    # plt.ylabel('Train loss')
+    # plt.savefig('../save/nn_{}_{}_{}.png'.format(args.dataset, args.model,
+    #                                              args.epochs))
+
+

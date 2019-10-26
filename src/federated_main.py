@@ -17,7 +17,7 @@ from options import args_parser
 from update import LocalUpdate, test_inference
 from models import MLP, CNNMnist, CNNFashion_Mnist, CNNCifar
 from utils import get_dataset, average_weights, exp_details
-
+# os.environ['CUDA_VISIBLE_DEVICES'] ='0'
 
 if __name__ == '__main__':
     start_time = time.time()
@@ -31,6 +31,7 @@ if __name__ == '__main__':
 
     if args.gpu:
         torch.cuda.set_device(args.gpu)
+        # torch.cuda.set_device(0)
     device = 'cuda' if args.gpu else 'cpu'
 
     # load dataset and user groups

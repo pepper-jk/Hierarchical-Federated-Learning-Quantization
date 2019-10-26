@@ -221,24 +221,24 @@ if __name__ == '__main__':
 
     # for epoch in tqdm(range(args.epochs)):
     # for epoch in range(args.epochs):
-    # while testacc_check < args.test_acc or epoch < args.epochs:
-    while epoch < args.epochs: 
+    while testacc_check < args.test_acc or epoch < args.epochs:
+    # while epoch < args.epochs: 
         local_weights, local_losses, local_accuracies= [], [], []
         print(f'\n | Global Training Round : {epoch+1} |\n')
         
         # ============== TRAIN ==============
         global_model.train()
         
-        # Cluster A
+        # ===== Cluster A ===== 
         A_model, A_weights, A_losses = fl_train(args, train_dataset, cluster_modelA, A1, user_groupsA, args.Cepochs)        
         local_weights.append(copy.deepcopy(A_weights))
         local_losses.append(copy.deepcopy(A_losses))    
-        cluster_modelA = A_model    
-        # Cluster B
+        cluster_modelA = global_model# = A_model    
+        # ===== Cluster B ===== 
         B_model, B_weights, B_losses = fl_train(args, train_dataset, cluster_modelB, B1, user_groupsB, args.Cepochs)
         local_weights.append(copy.deepcopy(B_weights))
         local_losses.append(copy.deepcopy(B_losses))
-        cluster_modelB = B_model 
+        cluster_modelB = global_model# = B_model 
 
         # # Cluster C
         # C_weights, C_losses = fl_train(args, train_dataset, cluster_modelC, C1, user_groupsC, args.Cepochs)

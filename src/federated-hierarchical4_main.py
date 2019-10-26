@@ -137,31 +137,31 @@ if __name__ == '__main__':
     keylist = list(user_groups.keys())
     print("keylist: ", keylist)
     # ======= Splitting into clusters. FL groups ======= 
-    # cluster_size = int(args.num_users / args.num_clusters)    
-    cluster_size = 50
+    cluster_size = int(args.num_users / args.num_clusters)    
+    # cluster_size = 50
     print("Each cluster size: ", cluster_size)
 
     # Cluster 1
-    # A1 = keylist[:cluster_size]
-    A1 = np.random.choice(keylist, cluster_size, replace=False)
+    A1 = keylist[:cluster_size]
+    # A1 = np.random.choice(keylist, cluster_size, replace=False)
     print("A1: ", A1)
     user_groupsA = {k:user_groups[k] for k in A1 if k in user_groups}
     print("Size of cluster 1: ", len(user_groupsA))
     # Cluster 2
-    # B1 = keylist[cluster_size:2*cluster_size]
-    B1 = np.random.choice(keylist, cluster_size, replace=False)    
+    B1 = keylist[cluster_size:2*cluster_size]
+    # B1 = np.random.choice(keylist, cluster_size, replace=False)    
     print("B1: ", B1)
     user_groupsB = {k:user_groups[k] for k in B1 if k in user_groups}
     print("Size of cluster 2: ", len(user_groupsB))
     # Cluster 3
-    # C1 = keylist[2*cluster_size:3*cluster_size]
-    C1 = np.random.choice(keylist, cluster_size, replace=False)
+    C1 = keylist[2*cluster_size:3*cluster_size]
+    # C1 = np.random.choice(keylist, cluster_size, replace=False)
     print("C1: ", C1)
     user_groupsC = {k:user_groups[k] for k in C1 if k in user_groups}
     print("Size of cluster 3: ", len(user_groupsC))
     # Cluster 4
-    # D1 = keylist[3*cluster_size:4*cluster_size]
-    D1 = np.random.choice(keylist, cluster_size, replace=False)
+    D1 = keylist[3*cluster_size:4*cluster_size]
+    # D1 = np.random.choice(keylist, cluster_size, replace=False)
     print("D1: ", D1)
     user_groupsD = {k:user_groups[k] for k in D1 if k in user_groups}
     print("Size of cluster 4: ", len(user_groupsD))
@@ -229,26 +229,26 @@ if __name__ == '__main__':
         # ============== TRAIN ==============
         global_model.train()
         
-        # Cluster A
-        A_model, A_weights, A_losses = fl_train(args, train_dataset, cluster_modelA, A1, user_groupsA, args.Cepochs)        
+        # ===== Cluster A ===== 
+        _, A_weights, A_losses = fl_train(args, train_dataset, cluster_modelA, A1, user_groupsA, args.Cepochs)        
         local_weights.append(copy.deepcopy(A_weights))
         local_losses.append(copy.deepcopy(A_losses))    
-        cluster_modelA = A_model    
-        # Cluster B
+        cluster_modelA = global_model #= A_model        
+        # ===== Cluster B ===== 
         B_model, B_weights, B_losses = fl_train(args, train_dataset, cluster_modelB, B1, user_groupsB, args.Cepochs)
         local_weights.append(copy.deepcopy(B_weights))
         local_losses.append(copy.deepcopy(B_losses))
-        cluster_modelB = B_model 
-        # Cluster C
+        cluster_modelB = global_model #= B_model 
+        # ===== Cluster C ===== 
         C_model, C_weights, C_losses = fl_train(args, train_dataset, cluster_modelC, C1, user_groupsC, args.Cepochs)
         local_weights.append(copy.deepcopy(C_weights))
         local_losses.append(copy.deepcopy(C_losses))   
-        cluster_modelC = C_model      
-        # Cluster D
+        cluster_modelC = global_model #= C_model      
+        # ===== Cluster D ===== 
         D_model, D_weights, D_losses = fl_train(args, train_dataset, cluster_modelD, D1, user_groupsD, args.Cepochs)
         local_weights.append(copy.deepcopy(D_weights))
         local_losses.append(copy.deepcopy(D_losses))
-        cluster_modelD = D_model 
+        cluster_modelD= global_model #= D_model 
         
         
         # averaging global weights
