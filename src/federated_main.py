@@ -80,8 +80,8 @@ if __name__ == '__main__':
     testacc_check, epoch = 0, 0 
 
     # for epoch in tqdm(range(args.epochs)):  # global training epochs
-    # for epoch in range(args.epochs):
-    while testacc_check < args.test_acc or epoch < args.epochs:
+    for epoch in range(args.epochs):
+    # while testacc_check < args.test_acc or epoch < args.epochs:
     # while testacc_check < args.test_acc:
         local_weights, local_losses = [], [] # init empty local weights and local losses
         print(f'\n | Global Training Round : {epoch+1} |\n') # starting with | Global Training Round : 1 |

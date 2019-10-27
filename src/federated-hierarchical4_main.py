@@ -220,9 +220,9 @@ if __name__ == '__main__':
     idx = np.random.randint(0,99)
 
     # for epoch in tqdm(range(args.epochs)):
-    # for epoch in range(args.epochs):
+    for epoch in range(args.epochs):
     # while testacc_check < args.test_acc or epoch < args.epochs:
-    while epoch < args.epochs:        
+    # while epoch < args.epochs:        
         local_weights, local_losses, local_accuracies= [], [], []
         print(f'\n | Global Training Round : {epoch+1} |\n')
         
