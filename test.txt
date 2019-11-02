@@ -1,8 +1,0 @@
-activate.sh
-data
-LICENSE
-README.md
-requirments.txt
-save
-src
-test.txt
