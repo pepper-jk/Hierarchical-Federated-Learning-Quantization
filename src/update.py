@@ -5,6 +5,8 @@
 import torch
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
+import utils
+#from utils import set_device
 
 
 class DatasetSplit(Dataset):
@@ -21,15 +23,15 @@ class DatasetSplit(Dataset):
     def __getitem__(self, item):
         image, label = self.dataset[self.idxs[item]]
         return torch.tensor(image), torch.tensor(label)
-
-
+       
 class LocalUpdate(object):
     def __init__(self, args, dataset, idxs, logger):
         self.args = args
         self.logger = logger
         self.trainloader, self.validloader, self.testloader = self.train_val_test(
             dataset, list(idxs))
-        self.device = 'cuda' if args.gpu else 'cpu'
+        # Select CPU or GPU
+        self.device = utils.set_device(args)
         # Default criterion set to NLL loss function
         self.criterion = nn.NLLLoss().to(self.device)
 
@@ -51,10 +53,12 @@ class LocalUpdate(object):
                                 batch_size=int(len(idxs_test)/10), shuffle=False)
         return trainloader, validloader, testloader
 
-    def update_weights(self, model, global_round):
+    def update_weights(self, model, global_round, dtype=torch.float32):
         # Set mode to train model
         model.train()
         epoch_loss = []
+        # Set dtype for criterion
+        self.criterion.to(dtype)
 
         # Set optimizer for the local updates
         if self.args.optimizer == 'sgd':
@@ -68,6 +72,8 @@ class LocalUpdate(object):
             batch_loss = []
             for batch_idx, (images, labels) in enumerate(self.trainloader):
                 images, labels = images.to(self.device), labels.to(self.device)
+                images = images.to(dtype)
+                # labels shouldn't be cast to criterion_dtype, and should remain as dtype long
 
                 model.zero_grad()
                 log_probs = model(images)
@@ -86,15 +92,19 @@ class LocalUpdate(object):
 
         return model.state_dict(), sum(epoch_loss) / len(epoch_loss)
 
-    def inference(self, model):
+    def inference(self, model, dtype=torch.float32):
         """ Returns the inference accuracy and loss.
         """
 
         model.eval()
         loss, total, correct = 0.0, 0.0, 0.0
 
+        # Set dtype for criterion
+        self.criterion.to(dtype)
+        
         for batch_idx, (images, labels) in enumerate(self.testloader):
             images, labels = images.to(self.device), labels.to(self.device)
+            images = images.to(dtype)
 
             # Inference
             outputs = model(images)
@@ -111,21 +121,28 @@ class LocalUpdate(object):
         return accuracy, loss
 
 
-def test_inference(args, model, test_dataset):
+def test_inference(args, model, test_dataset, dtype=torch.float32):
     """ Returns the test accuracy and loss.
     """
 
     model.eval()
+    model.to(dtype)
     loss, total, correct = 0.0, 0.0, 0.0
 
-    device = 'cuda' if args.gpu else 'cpu'
+    # Select CPU or GPU
+    device = utils.set_device(args)
+    
     criterion = nn.NLLLoss().to(device)
+    # Set dtype for criterion
+    criterion.to(dtype)
+    
     testloader = DataLoader(test_dataset, batch_size=128,
                             shuffle=False)
 
     for batch_idx, (images, labels) in enumerate(testloader):
         images, labels = images.to(device), labels.to(device)
-
+        images = images.to(dtype)
+            
         # Inference
         outputs = model(images)
         batch_loss = criterion(outputs, labels)
