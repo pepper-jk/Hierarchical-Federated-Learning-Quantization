@@ -16,97 +16,9 @@ from tensorboardX import SummaryWriter
 from options import args_parser
 from update import LocalUpdate, test_inference
 from models import MLP, CNNMnist, CNNFashion_Mnist, CNNCifar
-from utils import get_dataset, average_weights, exp_details
+from utils import get_dataset, average_weights, exp_details, set_device, build_model, fl_train
 import math
 import random
-
-
-# BUILD MODEL
-def build_model(args, train_dataset):
-    if args.model == 'cnn':
-        # Convolutional neural network
-        if args.dataset == 'mnist':
-            global_model = CNNMnist(args=args)
-        elif args.dataset == 'fmnist':
-            global_model = CNNFashion_Mnist(args=args)
-        elif args.dataset == 'cifar':
-            global_model = CNNCifar(args=args)
-
-    elif args.model == 'mlp':
-        # Multi-layer preceptron
-        img_size = train_dataset[0][0].shape
-        len_in = 1
-        for x in img_size:
-            len_in *= x
-            global_model = MLP(dim_in=len_in, dim_hidden=args.mlpdim,
-                               dim_out=args.num_classes)
-    else:
-        exit('Error: unrecognized model')
-        
-    return global_model
-
-
-# Defining the training function
-def fl_train(args, train_dataset, cluster_global_model, cluster, usergrp, epochs):
-    
-    cluster_train_loss, cluster_train_acc = [], []
-    cluster_val_acc_list, cluster_net_list = [], []
-    cluster_cv_loss, cluster_cv_acc = [], []
-    # print_every = 1
-    cluster_val_loss_pre, counter = 0, 0
-
-    for epoch in range(epochs):
-        cluster_local_weights, cluster_local_losses = [], []
-        # print(f'\n | Cluster Training Round : {epoch+1} |\n')
-
-        cluster_global_model.train()
-        # m = max(int(args.frac * len(cluster)), 1)
-        # m = max(int(math.ceil(args.frac * len(cluster))), 1)
-        m = min(int(len(cluster)), 10)
-        # print("=== m ==== ", m)
-        # m = 10
-        idxs_users = np.random.choice(cluster, m, replace=False)
-
-
-        for idx in idxs_users:
-            cluster_local_model = LocalUpdate(args=args, dataset=train_dataset, idxs=usergrp[idx], logger=logger)
-            cluster_w, cluster_loss = cluster_local_model.update_weights(model=copy.deepcopy(cluster_global_model), global_round=epoch)
-            cluster_local_weights.append(copy.deepcopy(cluster_w))
-            cluster_local_losses.append(copy.deepcopy(cluster_loss))
-            # print('| Global Round : {} | User : {} | \tLoss: {:.6f}'.format(epoch, idx, cluster_loss))
-
-        # averaging global weights
-        cluster_global_weights = average_weights(cluster_local_weights)
-
-        # update global weights
-        cluster_global_model.load_state_dict(cluster_global_weights)
-
-        cluster_loss_avg = sum(cluster_local_losses) / len(cluster_local_losses)
-        cluster_train_loss.append(cluster_loss_avg)
-
-        # ============== EVAL ============== 
-        # Calculate avg training accuracy over all users at every epoch
-        list_acc, list_loss = [], []
-        cluster_global_model.eval()
-        # C = np.random.choice(cluster, m, replace=False) # random set of clients
-        # print("C: ", C)
-        # for c in C:
-        # for c in range(len(cluster)):  
-        for c in idxs_users:      
-            cluster_local_model = LocalUpdate(args=args, dataset=train_dataset, idxs=usergrp[c], logger=logger)
-            # local_model = LocalUpdate(args=args, dataset=train_dataset,idxs=user_groups[idx], logger=logger)
-            acc, loss = cluster_local_model.inference(model=global_model)
-            list_acc.append(acc)
-            list_loss.append(loss)
-        # cluster_train_acc.append(sum(list_acc)/len(list_acc))
-        # Add
-    # print("Cluster accuracy: ", 100*cluster_train_acc[-1]) 
-    print("Cluster accuracy: ", 100*sum(list_acc)/len(list_acc)) 
-
-    return cluster_global_model, cluster_global_weights, cluster_loss_avg
-    
-
-
 
 
 if __name__ == '__main__':
@@ -119,9 +31,8 @@ if __name__ == '__main__':
     args = args_parser()
     exp_details(args)
 
-    if args.gpu:
-        torch.cuda.set_device(args.gpu)
-    device = 'cuda' if args.gpu else 'cpu'
+    # Select CPU or GPU
+    device = set_device(args)
 
     # load dataset and user groups
     train_dataset, test_dataset, user_groupsold = get_dataset(args)
@@ -156,14 +67,6 @@ if __name__ == '__main__':
     print("B1: ", B1)
     user_groupsB = {k:user_groups[k] for k in B1 if k in user_groups}
     print("Size of cluster 2: ", len(user_groupsB))
-    # # Cluster 3
-    # C1 = np.arange(2*cluster_size, 3*cluster_size, dtype=int)
-    # user_groupsC = {k:user_groups[k] for k in C1 if k in user_groups}
-    # print("Size of cluster 3: ", len(user_groupsC))
-    # # Cluster 4
-    # D1 = np.arange(3*cluster_size, 4*cluster_size, dtype=int)
-    # user_groupsD = {k:user_groups[k] for k in D1 if k in user_groups}
-    # print("Size of cluster 4: ", len(user_groupsD))
 
     # MODEL PARAM SUMMARY
     global_model = build_model(args, train_dataset)
@@ -197,19 +100,6 @@ if __name__ == '__main__':
     # copy weights
     cluster_modelB_weights = cluster_modelB.state_dict()
 
-    # # Cluster C
-    # cluster_modelC = build_model(args, train_dataset)
-    # cluster_modelC.to(device)
-    # cluster_modelC.train()
-    # # copy weights
-    # cluster_modelC_weights = cluster_modelC.state_dict()
-    # # Cluster D
-    # cluster_modelD = build_model(args, train_dataset)
-    # cluster_modelD.to(device)
-    # cluster_modelD.train()
-    # # copy weights
-    # cluster_modelD_weights = cluster_modelD.state_dict()
-
 
     train_loss, train_accuracy = [], []
     val_acc_list, net_list = [], []
@@ -230,25 +120,16 @@ if __name__ == '__main__':
         global_model.train()
         
         # ===== Cluster A ===== 
-        A_model, A_weights, A_losses = fl_train(args, train_dataset, cluster_modelA, A1, user_groupsA, args.Cepochs)        
+        A_model, A_weights, A_losses = fl_train(args, train_dataset, cluster_modelA, A1, user_groupsA, args.Cepochs, logger)        
         local_weights.append(copy.deepcopy(A_weights))
         local_losses.append(copy.deepcopy(A_losses))    
         cluster_modelA = global_model# = A_model    
         # ===== Cluster B ===== 
-        B_model, B_weights, B_losses = fl_train(args, train_dataset, cluster_modelB, B1, user_groupsB, args.Cepochs)
+        B_model, B_weights, B_losses = fl_train(args, train_dataset, cluster_modelB, B1, user_groupsB, args.Cepochs, logger)
         local_weights.append(copy.deepcopy(B_weights))
         local_losses.append(copy.deepcopy(B_losses))
         cluster_modelB = global_model# = B_model 
-
-        # # Cluster C
-        # C_weights, C_losses = fl_train(args, train_dataset, cluster_modelC, C1, user_groupsC, args.Cepochs)
-        # local_weights.append(copy.deepcopy(C_weights))
-        # local_losses.append(copy.deepcopy(C_losses))        
-        # # Cluster D
-        # D_weights, D_losses = fl_train(args, train_dataset, cluster_modelD, D1, user_groupsD, args.Cepochs)
-        # local_weights.append(copy.deepcopy(D_weights))
-        # local_losses.append(copy.deepcopy(D_losses))
-        
+       
         
         # averaging global weights
         global_weights = average_weights(local_weights)
