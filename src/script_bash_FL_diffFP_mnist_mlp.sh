@@ -13,6 +13,7 @@ python federated_main.py --local_ep=1 --local_bs=10 --frac=0.1 --model=mlp --dat
 # NON-IID
 python federated_main.py --local_ep=1 --local_bs=10 --frac=0.1 --model=mlp --dataset=mnist --iid=0 --gpu=1 --lr=0.1 --test_acc=95 --mlpdim=200 --epochs=1200
 
+python federated_main.py --local_ep=1 --local_bs=10 --frac=0.1 --model=mlp --dataset=mnist --iid=0 --gpu=1 --lr=0.1 --test_acc=95 --mlpdim=200 --epochs=1196
 
 # This is for 2 clusters HFL for 32-bit floating point
 # IID
@@ -38,9 +39,11 @@ python federated-hierarchical8_main.py --local_ep=1 --local_bs=10 --Cepochs=10 -
 
 # ================ 16-bit ================ 
 # This is for 1 cluster FL for 16-bit floating point
-python ./federated_main_fp16.py --local_ep=1 --local_bs=10 --frac=0.1 --model=mlp --dataset=mnist --iid=1 --gpu=1 --gpu_id=$GPU_ID --lr=0.01 --test_acc=95 --mlpdim=200 --epochs=600 
+python ./federated_main_fp16.py --local_ep=1 --local_bs=10 --frac=0.1 --model=mlp --dataset=mnist --iid=1 --gpu=1 --gpu_id=$GPU_ID --lr=0.01 --test_acc=95 --mlpdim=200 --epochs=650 
 
-python ./federated_main_fp16.py --local_ep=1 --local_bs=10 --frac=0.1 --model=mlp --dataset=mnist --iid=0 --gpu=1 --gpu_id=$GPU_ID --lr=0.1 --test_acc=95 --mlpdim=200 --epochs=1200
+python ./federated_main_fp16.py --local_ep=1 --local_bs=10 --frac=0.1 --model=mlp --dataset=mnist --iid=1 --gpu=1 --gpu_id=$GPU_ID --lr=0.01 --test_acc=95 --mlpdim=200 --epochs=468
+
+python ./federated_main_fp16.py --local_ep=1 --local_bs=10 --frac=0.1 --model=mlp --dataset=mnist --iid=0 --gpu=1 --gpu_id=$GPU_ID --lr=0.1 --test_acc=95 --mlpdim=200 --epochs=1196
 
 
 # This is for 2 clusters FL for 16-bit floating point
