@@ -1,7 +1,4 @@
-Python==3.7.3
-Pytorch==1.2.0
-Torchvision==0.4.0
-Numpympy==1.15.4
-Tensorboardx==1.4
-Matplotlib==3.0.1
-Tqdm==4.39.0 
+tqdm==4.39.0 
+numpy==1.15.4
+matplotlib==3.0.1
+tensorboardx==1.4
