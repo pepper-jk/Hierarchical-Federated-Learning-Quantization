@@ -4,7 +4,7 @@
 # Website on how to write bash script https://hackernoon.com/know-shell-scripting-202b2fbe03a8
 
 # Set GPU device
-GPU_ID="cuda:1"
+GPU_ID="cuda:0"
 
 
 # ================ 32-bit ================ 

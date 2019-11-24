@@ -1,71 +1,87 @@
-# Federated-Learning (PyTorch)
+# Hierarchical Federated-Learning (PyTorch)
 
 Implementation of both hierarchical and vanilla federated learning based on the paper : [Communication-Efficient Learning of Deep Networks from Decentralized Data](https://arxiv.org/abs/1602.05629).
-Blog Post: https://ai.googleblog.com/2017/04/federated-learning-collaborative.html
 
 Experiments are conducted on MNIST and CIFAR10 datasets. During training, the datasets split are both IID and non-IID. In case of non-IID, the data amongst the users can be split equally or unequally.
 
 Since the purpose of these experiments are to illustrate the effectiveness of the federated learning paradigm, only simple models such as MLP and CNN are used.
 
-## Requirments
-Install all the packages from requirments.txt
-* Python=3.7.3
-* Pytorch=1.2.0
-* Torchvision=0.4.0
-* Numpy=1.15.4
-* Tensorboardx=1.4
-* Matplotlib=3.0.1
+## Requirements
+Install all the packages from requirements.txt
+* Python==3.7.3
+* Pytorch==1.2.0
+* Torchvision==0.4.0
+* Numpy==1.15.4
+* Tensorboardx==1.4
+* Matplotlib==3.0.1
+* Tqdm==4.39.0 
+
+## Steps to setting up a Python environment
+1. Creating environment:
+```
+conda create -n myenv python=3.7.3
+```
+2. Installing Pytorch and torchvision:
+```
+conda install pytorch==1.2.0 torchvision==0.4.0 -c pytorch
+```
+3. Installing other package requirements:
+```
+pip install -r requirements.txt
+```
 
 
 ## Data
-* Download train and test datasets manually or they will be automatically downloaded from torchvision datasets.
-* Experiments are run on Mnist and Cifar.
+* Download train and test datasets manually or they will be automatically downloaded to the [data](/data/) folder from torchvision datasets.
+* Experiments are run on MNIST and CIFAR.
 * To use your own dataset: Move your dataset to data directory and write a wrapper on pytorch dataset class.
 
 ## Running the experiments
-The baseline experiment trains the model in the conventional way.
+All the experiments of reported results are in the [scripts](/src/) below:
+* script_bash_FL_diffFP_mnist_mlp.sh
+* script_bash_FL_diffFP_mnist_cnn.sh
+* script_bash_FL_diffFP_cifar.sh
+* script_bash_FL_diffFP.sh
+-----
+The baseline experiment trains the model in the conventional federated learning.
 
-* To run the baseline experiment with MNIST on MLP using CPU:
+* To run the baseline federated experiment with MNIST on MLP using CPU:
 ```
-python baseline_main.py --model=mlp --dataset=mnist --epochs=10
+python federated_main.py --local_ep=1 --local_bs=10 --frac=0.1 --model=mlp --dataset=mnist --iid=1 --gpu=0 --lr=0.01 --test_acc=95 --mlpdim=200 --epochs=600
 ```
 * Or to run it on GPU (eg: if gpu:0 is available):
 ```
-python baseline_main.py --model=mlp --dataset=mnist --gpu=1 --epochs=10
+python federated_main.py --local_ep=1 --local_bs=10 --frac=0.1 --model=mlp --dataset=mnist --iid=1 --gpu=1 --lr=0.01 --test_acc=95 --mlpdim=200 --epochs=600
 ```
 -----
 
-Federated experiment involves training a global model using many local models.
+Hierarchical federated experiment involves training a global model using many local models. 
 
-* To run the federated experiment with CIFAR on CNN (IID):
+* To run the hierarchical federated experiment with 2 clusters on MNIST using CNN (IID):
 ```
-python federated_main.py --local_ep=1 --local_bs=10 --frac=0.1 --model=cnn --dataset=cifar --iid=1 --test_acc=99 --gpu=1
+python federated-hierarchical2_main.py --local_ep=1 --local_bs=10 --frac=0.1 --Cepochs=10 --model=cnn --dataset=mnist --iid=1 --num_cluster=2 --gpu=1 --lr=0.01 --epochs=100
 ```
 * To run the same experiment under non-IID condition:
 ```
-python federated_main.py --local_ep=1 --local_bs=10 --frac=0.1 --model=cnn --dataset=cifar --iid=0 --test_acc=99 --gpu=1
+python federated-hierarchical2_main.py --local_ep=1 --local_bs=10 --frac=0.1 --Cepochs=10 --model=cnn --dataset=mnist --iid=0 --num_cluster=2 --gpu=1 --lr=0.01 --epochs=100
 ```
 -----
+Hierarchical Federated experiments involve training a global model using different clusters with many local models (16-bit).
 
-Hierarchical Federated experiments involve training a global model using different clusters with many local models.
+* To run the hierarchical federated experiment with 2 clusters on CIFAR using CNN (IID):
+```
+python ./federated-hierarchical2_main_fp16.py --local_ep=5 --local_bs=50 --frac=0.1 --Cepochs=10 --model=cnn --dataset=cifar --iid=1 --num_cluster=2 --gpu=1 --lr=0.01 --epochs=100 
+```
 
-* To run the hierarchical federated experiment with MNIST on MLP (IID):
-```
-python federated-hierarchical_main.py --local_ep=1 --local_bs=10 --frac=0.1 --Cepochs=5 --model=mlp --dataset=mnist --iid=1 --num_cluster=2 --test_acc=97  --gpu=1
-```
-* To run the same experiment under non-IID condition:
-```
-python federated-hierarchical_main.py --local_ep=1 --local_bs=10 --frac=0.1 --Cepochs=5 --model=mlp --dataset=mnist --iid=0 --num_cluster=2 --test_acc=97  --gpu=1
-```
 
 You can change the default values of other parameters to simulate different conditions. Refer to the options section.
 
 ## Options
 The default values for various paramters parsed to the experiment are given in ```options.py```. Details are given some of those parameters:
 
-* ```--dataset:```  Default: 'mnist'. Options: 'mnist', 'fmnist', 'cifar'
+* ```--dataset:```  Default: 'mnist'. Options: 'mnist', 'cifar'
 * ```--model:```    Default: 'mlp'. Options: 'mlp', 'cnn'
-* ```--gpu:```      Default: None (runs on CPU). Can also be set to the specific gpu id.
+* ```--gpu:```      Default: 1 (runs on gpu:0)
 * ```--epochs:```   Number of rounds of training.
 * ```--lr:```       Learning rate set to 0.01 by default.
 * ```--verbose:```  Detailed log outputs. Activated by default, set to 0 to deactivate.
@@ -75,42 +91,17 @@ The default values for various paramters parsed to the experiment are given in `
 * ```--iid:```      Distribution of data amongst users. Default set to IID. Set to 0 for non-IID.
 * ```--num_users:```Number of users. Default is 100.
 * ```--frac:```     Fraction of users to be used for federated updates. Default is 0.1.
-* ```--local_ep:``` Number of local training epochs in each user. Default is 10.
+* ```--local_ep:``` Number of local training epochs in each user. Default is 1.
 * ```--local_bs:``` Batch size of local updates in each user. Default is 10.
-* ```--unequal:```  Used in non-iid setting. Option to split the data amongst users equally or unequally. Default set to 0 for equal splits. Set to 1 for unequal splits.
 * ```--num_clusters:```  Number of clusters in the hierarchy.
 * ```--Cepochs:```  Number of rounds of training in each cluster.
 
-## Results on MNIST
-#### Baseline Experiment:
-The experiment involves training a single model in the conventional way.
+## Experimental Results 
+The results and figures can be found in [evaluation notebooks](/src/)
+* Eval.ipynb
+* Eval_fp16.ipynb
+* Eval_fp16-32-compare.ipynb
 
-Parameters: <br />
-* ```Optimizer:```    : SGD 
-* ```Learning Rate:``` 0.01
 
-```Table 1:``` Test accuracy after training for 10 epochs:
 
-| Model | Test Acc |
-| ----- | -----    |
-|  MLP  |  92.71%  |
-|  CNN  |  98.42%  |
 
-----
-
-#### Federated Experiment:
-The experiment involves training a global model in the federated setting.
-
-Federated parameters (default values):
-* ```Fraction of users (C)```: 0.1 
-* ```Local Batch size  (B)```: 10 
-* ```Local Epochs      (E)```: 10 
-* ```Optimizer            ```: SGD 
-* ```Learning Rate        ```: 0.01 <br />
-
-```Table 2:``` Test accuracy after training for 10 global epochs with:
-
-| Model |    IID   | Non-IID (equal)|
-| ----- | -----    |----            |
-|  MLP  |  88.38%  |     73.49%     |
-|  CNN  |  97.28%  |     75.94%     |
