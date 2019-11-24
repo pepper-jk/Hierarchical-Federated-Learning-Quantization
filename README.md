@@ -4,7 +4,7 @@ Implementation of both hierarchical and vanilla federated learning based on the 
 
 Experiments are conducted on MNIST and CIFAR10 datasets. During training, the datasets split are both IID and non-IID. In case of non-IID, the data amongst the users can be split equally or unequally.
 
-Since the purpose of these experiments are to illustrate the effectiveness of the federated learning paradigm, only simple models such as MLP and CNN are used.
+Since the purpose of these experiments is to illustrate the effectiveness of the federated learning paradigm, only simple models such as MLP and CNN are used.
 
 ## Requirements
 Install all the packages from requirements.txt
@@ -81,7 +81,8 @@ The default values for various paramters parsed to the experiment are given in `
 
 * ```--dataset:```  Default: 'mnist'. Options: 'mnist', 'cifar'
 * ```--model:```    Default: 'mlp'. Options: 'mlp', 'cnn'
-* ```--gpu:```      Default: 1 (runs on gpu:0)
+* ```--gpu:```      Default: 1 (runs on gpu:0). Select 0 if using CPU only
+* ```--gpu_id:```	Default: 'cuda:0' (this specifies which GPU to use)
 * ```--epochs:```   Number of rounds of training.
 * ```--lr:```       Learning rate set to 0.01 by default.
 * ```--verbose:```  Detailed log outputs. Activated by default, set to 0 to deactivate.
