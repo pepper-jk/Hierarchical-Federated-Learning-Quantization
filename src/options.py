@@ -42,6 +42,8 @@ def args_parser():
     parser.add_argument('--max_pool', type=str, default='True',
                         help="Whether use max pooling rather than \
                         strided convolutions")
+    parser.add_argument('-fp16', '--floating_point_16', action='store_true', default=False, \
+                        help="use floating point 16 for model")
 
     # other arguments
     parser.add_argument('--dataset', type=str, default='mnist', help="name \
