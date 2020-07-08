@@ -37,6 +37,9 @@ if __name__ == '__main__':
 
     # Set the model to train and send it to device.
     global_model.to(device)
+    # Set model to use Floating Point 16
+    if args.floating_point_16:
+        global_model.to(dtype=torch.float16)
     global_model.train()
     print(global_model)
 
@@ -62,12 +65,17 @@ if __name__ == '__main__':
 
     trainloader = DataLoader(train_dataset, batch_size=64, shuffle=True)
     criterion = torch.nn.NLLLoss().to(device)
+    if args.floating_point_16:
+        criterion.to(dtype = torch.float16)
+
     epoch_loss = []
 
     for epoch in tqdm(range(args.epochs)):
         batch_loss = []
 
         for batch_idx, (images, labels) in enumerate(trainloader):
+            if args.floating_point_16:
+                images=images.to(dtype=torch.float16)
             images, labels = images.to(device), labels.to(device)
 
             optimizer.zero_grad()
@@ -88,14 +96,20 @@ if __name__ == '__main__':
 
 
     # testing
-    test_acc, test_loss = test_inference(args, global_model, test_dataset)
+    data_type = torch.float32
+    if args.floating_point_16:
+        data_type = torch.float16
+    test_acc, test_loss = test_inference(args, global_model, test_dataset, dtype=data_type)
     print('Test on', len(test_dataset), 'samples')
     print("Test Accuracy: {:.2f}%".format(100*test_acc))
 
 
     # Saving the objects train_loss, test_acc, test_loss:
-    file_name = '../save/objects/BaseSGD_{}_{}_epoch[{}]_lr[{}]_iid[{}].pkl'.\
-        format(args.dataset, args.model, epoch, args.lr, args.iid)
+    appendage = ''
+    if args.floating_point_16:
+        appendage = '_FP16'
+    file_name = '../save/objects{}/BaseSGD_{}_{}_epoch[{}]_lr[{}]_iid[{}]{}.pkl'.\
+        format(appendage.lower(), args.dataset, args.model, epoch, args.lr, args.iid, appendage)
 
     with open(file_name, 'wb') as f:
         pickle.dump([epoch_loss, test_acc, test_loss], f)
