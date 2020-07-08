@@ -16,6 +16,8 @@ from models import MLP, CNNMnist, CNNFashion_Mnist, CNNCifar
 import pickle
 import time
 
+from sys import exit
+
 if __name__ == '__main__':
     args = args_parser()
     start_time = time.time()
@@ -46,6 +48,17 @@ if __name__ == '__main__':
     elif args.optimizer == 'adam':
         optimizer = torch.optim.Adam(global_model.parameters(), lr=args.lr,
                                      weight_decay=1e-4)
+    elif args.optimizer == 'adagrad':
+        optimizer = torch.optim.Adagrad(global_model.parameters(), lr=args.lr,
+                                     weight_decay=1e-4)
+    elif args.optimizer == 'adamax':
+        optimizer = torch.optim.Adamax(global_model.parameters(), lr=args.lr,
+                                     weight_decay=1e-4)
+    elif args.optimizer == 'rmsprop':
+        optimizer = torch.optim.RMSprop(global_model.parameters(), lr=args.lr,
+                                     weight_decay=1e-4)
+    else:
+        exit('Error- unrecognized optimizer: ' + args.optimizer)
 
     trainloader = DataLoader(train_dataset, batch_size=64, shuffle=True)
     criterion = torch.nn.NLLLoss().to(device)
