@@ -29,11 +29,6 @@ if __name__ == '__main__':
     args = args_parser()
     exp_details(args)
 
-    # if args.gpu:
-    #     torch.cuda.set_device(args.gpu)
-    #     # torch.cuda.set_device(0)
-    # device = 'cuda' if args.gpu else 'cpu'
-
     # Select CPU or GPU
     device = set_device(args)
 
@@ -51,7 +46,6 @@ if __name__ == '__main__':
     # MODEL PARAM SUMMARY
     pytorch_total_params = sum(p.numel() for p in global_model.parameters())
     print("Model total number of parameters: ", pytorch_total_params)
-    # print(global_model.parameters())
 
     # copy weights
     global_weights = global_model.state_dict()
@@ -64,10 +58,8 @@ if __name__ == '__main__':
     val_loss_pre, counter = 0, 0
     testacc_check, epoch = 0, 0
 
-    # for epoch in tqdm(range(args.epochs)):  # global training epochs
+    # global training epochs
     for epoch in range(args.epochs):
-    # while testacc_check < args.test_acc or epoch < args.epochs:
-    # while testacc_check < args.test_acc:
         local_weights, local_losses = [], [] # init empty local weights and local losses
         print(f'\n | Global Training Round : {epoch+1} |\n') # starting with | Global Training Round : 1 |
 
@@ -104,9 +96,6 @@ if __name__ == '__main__':
         global_model.eval() # must set your model into evaluation mode when computing model output values if dropout or bach norm used for training.
 
         for c in range(args.num_users): # 0 to 99
-            # local_model = LocalUpdate(args=args, dataset=train_dataset,
-            #                           idxs=user_groups[idx], logger=logger)
-            # Fix error idxs=user_groups[idx] to idxs=user_groups[c]
             local_model = LocalUpdate(args=args, dataset=train_dataset,
                                       idxs=user_groups[c], logger=logger)
             acc, loss = local_model.inference(model=global_model)
@@ -142,26 +131,27 @@ if __name__ == '__main__':
     print('\n Total Run Time: {0:0.4f}'.format(time.time()-start_time))
 
     # PLOTTING (optional)
-    # import matplotlib
-    # import matplotlib.pyplot as plt
-    # matplotlib.use('Agg')
+    if args.plot:
+        import matplotlib
+        import matplotlib.pyplot as plt
+        matplotlib.use('Agg')
 
-    # Plot Loss curve
-    # plt.figure()
-    # plt.title('Training Loss vs Communication rounds')
-    # plt.plot(range(len(train_loss)), train_loss, color='r')
-    # plt.ylabel('Training loss')
-    # plt.xlabel('Communication Rounds')
-    # plt.savefig('../save/fed_{}_{}_{}_C[{}]_iid[{}]_E[{}]_B[{}]_loss.png'.
-    #             format(args.dataset, args.model, args.epochs, args.frac,
-    #                    args.iid, args.local_ep, args.local_bs))
-    #
-    # # Plot Average Accuracy vs Communication rounds
-    # plt.figure()
-    # plt.title('Average Accuracy vs Communication rounds')
-    # plt.plot(range(len(train_accuracy)), train_accuracy, color='k')
-    # plt.ylabel('Average Accuracy')
-    # plt.xlabel('Communication Rounds')
-    # plt.savefig('../save/fed_{}_{}_{}_C[{}]_iid[{}]_E[{}]_B[{}]_acc.png'.
-    #             format(args.dataset, args.model, args.epochs, args.frac,
-    #                    args.iid, args.local_ep, args.local_bs))
+        # Plot Loss curve
+        plt.figure()
+        plt.title('Training Loss vs Communication rounds')
+        plt.plot(range(len(train_loss)), train_loss, color='r')
+        plt.ylabel('Training loss')
+        plt.xlabel('Communication Rounds')
+        plt.savefig('../save/fed_{}_{}_{}_C[{}]_iid[{}]_E[{}]_B[{}]_loss.png'.
+                    format(args.dataset, args.model, args.epochs, args.frac,
+                        args.iid, args.local_ep, args.local_bs))
+
+        # Plot Average Accuracy vs Communication rounds
+        plt.figure()
+        plt.title('Average Accuracy vs Communication rounds')
+        plt.plot(range(len(train_accuracy)), train_accuracy, color='k')
+        plt.ylabel('Average Accuracy')
+        plt.xlabel('Communication Rounds')
+        plt.savefig('../save/fed_{}_{}_{}_C[{}]_iid[{}]_E[{}]_B[{}]_acc.png'.
+                    format(args.dataset, args.model, args.epochs, args.frac,
+                        args.iid, args.local_ep, args.local_bs))
