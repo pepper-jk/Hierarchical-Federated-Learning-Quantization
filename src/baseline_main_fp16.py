@@ -112,13 +112,11 @@ if __name__ == '__main__':
 
     print('\n Total Run Time: {0:0.4f}'.format(time.time()-start_time))
 
-
-    # # Plot loss
-    # plt.figure()
-    # plt.plot(range(len(epoch_loss)), epoch_loss)
-    # plt.xlabel('epochs')
-    # plt.ylabel('Train loss')
-    # plt.savefig('../save/nn_{}_{}_{}.png'.format(args.dataset, args.model,
-    #                                              args.epochs))
-
-
+    # Plot loss
+    if args.plot:
+        plt.figure()
+        plt.plot(range(len(epoch_loss)), epoch_loss)
+        plt.xlabel('epochs')
+        plt.ylabel('Train loss')
+        plt.savefig('../save/nn_{}_{}_{}.png'.format(args.dataset, args.model,
+                                                    args.epochs))
