@@ -45,7 +45,7 @@ class MLP(nn.Module):
         x = self.dropout(x)
         x = self.relu(x)
         x = self.layer_hidden2(x)
-        return self.softmax(x)        
+        return self.softmax(x)
 
 
 # class CNNMnist(nn.Module):
@@ -66,7 +66,7 @@ class MLP(nn.Module):
 #         x = self.fc2(x)
 #         return F.log_softmax(x, dim=1)
 
-# Change CNN model to 
+# Change CNN model to
 class CNNMnist(nn.Module):
     def __init__(self, args):
         super(CNNMnist, self).__init__()

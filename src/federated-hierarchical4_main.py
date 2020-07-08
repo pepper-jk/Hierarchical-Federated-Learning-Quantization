@@ -39,17 +39,17 @@ if __name__ == '__main__':
 
     # user_groups = user_groupsold
     # keylist = list(user_groups.keys())
-    # ======= Shuffle dataset ======= 
+    # ======= Shuffle dataset =======
     keys =  list(user_groupsold.keys())
     random.shuffle(keys)
     user_groups = dict()
     for key in keys:
         user_groups.update({key:user_groupsold[key]})
-    # print(user_groups.keys()) 
+    # print(user_groups.keys())
     keylist = list(user_groups.keys())
     print("keylist: ", keylist)
-    # ======= Splitting into clusters. FL groups ======= 
-    cluster_size = int(args.num_users / args.num_clusters)    
+    # ======= Splitting into clusters. FL groups =======
+    cluster_size = int(args.num_users / args.num_clusters)
     # cluster_size = 50
     print("Each cluster size: ", cluster_size)
 
@@ -61,7 +61,7 @@ if __name__ == '__main__':
     print("Size of cluster 1: ", len(user_groupsA))
     # Cluster 2
     B1 = keylist[cluster_size:2*cluster_size]
-    # B1 = np.random.choice(keylist, cluster_size, replace=False)    
+    # B1 = np.random.choice(keylist, cluster_size, replace=False)
     print("B1: ", B1)
     user_groupsB = {k:user_groups[k] for k in B1 if k in user_groups}
     print("Size of cluster 2: ", len(user_groupsB))
@@ -128,41 +128,41 @@ if __name__ == '__main__':
     cv_loss, cv_acc = [], []
     print_every = 1
     val_loss_pre, counter = 0, 0
-    testacc_check, epoch = 0, 0 
+    testacc_check, epoch = 0, 0
     idx = np.random.randint(0,99)
 
     # for epoch in tqdm(range(args.epochs)):
     for epoch in range(args.epochs):
     # while testacc_check < args.test_acc or epoch < args.epochs:
-    # while epoch < args.epochs:        
+    # while epoch < args.epochs:
         local_weights, local_losses, local_accuracies= [], [], []
         print(f'\n | Global Training Round : {epoch+1} |\n')
-        
+
         # ============== TRAIN ==============
         global_model.train()
-        
-        # ===== Cluster A ===== 
-        _, A_weights, A_losses = fl_train(args, train_dataset, cluster_modelA, A1, user_groupsA, args.Cepochs, logger)        
+
+        # ===== Cluster A =====
+        _, A_weights, A_losses = fl_train(args, train_dataset, cluster_modelA, A1, user_groupsA, args.Cepochs, logger)
         local_weights.append(copy.deepcopy(A_weights))
-        local_losses.append(copy.deepcopy(A_losses))    
-        cluster_modelA = global_model #= A_model        
-        # ===== Cluster B ===== 
+        local_losses.append(copy.deepcopy(A_losses))
+        cluster_modelA = global_model #= A_model
+        # ===== Cluster B =====
         B_model, B_weights, B_losses = fl_train(args, train_dataset, cluster_modelB, B1, user_groupsB, args.Cepochs, logger)
         local_weights.append(copy.deepcopy(B_weights))
         local_losses.append(copy.deepcopy(B_losses))
-        cluster_modelB = global_model #= B_model 
-        # ===== Cluster C ===== 
+        cluster_modelB = global_model #= B_model
+        # ===== Cluster C =====
         C_model, C_weights, C_losses = fl_train(args, train_dataset, cluster_modelC, C1, user_groupsC, args.Cepochs, logger)
         local_weights.append(copy.deepcopy(C_weights))
-        local_losses.append(copy.deepcopy(C_losses))   
-        cluster_modelC = global_model #= C_model      
-        # ===== Cluster D ===== 
+        local_losses.append(copy.deepcopy(C_losses))
+        cluster_modelC = global_model #= C_model
+        # ===== Cluster D =====
         D_model, D_weights, D_losses = fl_train(args, train_dataset, cluster_modelD, D1, user_groupsD, args.Cepochs, logger)
         local_weights.append(copy.deepcopy(D_weights))
         local_losses.append(copy.deepcopy(D_losses))
-        cluster_modelD= global_model #= D_model 
-        
-        
+        cluster_modelD= global_model #= D_model
+
+
         # averaging global weights
         global_weights = average_weights(local_weights)
 
@@ -171,8 +171,8 @@ if __name__ == '__main__':
 
         loss_avg = sum(local_losses) / len(local_losses)
         train_loss.append(loss_avg)
-        
-        # ============== EVAL ============== 
+
+        # ============== EVAL ==============
         # Calculate avg training accuracy over all users at every epoch
         list_acc, list_loss = [], []
         global_model.eval()
@@ -197,7 +197,7 @@ if __name__ == '__main__':
             print(f' \nAvg Training Stats after {epoch+1} global rounds:')
             print(f'Training Loss : {np.mean(np.array(train_loss))}')
             print('Train Accuracy: {:.2f}% \n'.format(100*train_accuracy[-1]))
-            
+
 
     print('\n Total Run Time: {0:0.4f}'.format(time.time()-start_time))
 

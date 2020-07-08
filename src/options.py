@@ -8,7 +8,7 @@ import argparse
 def args_parser():
     #parser = argparse.ArgumentParser()
     parser = argparse.ArgumentParser(description="Arguments for Neural Net")
-    
+
     # federated arguments (Notation for the arguments followed from paper)
     parser.add_argument('--epochs', type=int, default=5,
                         help="number of rounds of training")
@@ -73,7 +73,7 @@ def args_parser():
                         for model")
     parser.add_argument('--loss_dtype', default='torch.float32', help="Dtype \
                         for loss or criterion")
-    
-    
+
+
     args = parser.parse_args()
     return args

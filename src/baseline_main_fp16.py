@@ -22,13 +22,13 @@ from torchsummary import summary
 
 if __name__ == '__main__':
     start_time = time.time()
-    
+
     args = args_parser()
-    
+
     # Select CPU or GPU
     device = set_device(args)
-        
- 
+
+
     # load datasets
     train_dataset, test_dataset, _ = get_dataset(args)
 
@@ -64,15 +64,15 @@ if __name__ == '__main__':
                                      weight_decay=1e-4)
     else:
         exit('Error- unrecognized optimizer: ' + args.optimizer)
-    
+
     # look under optim for more info on scheduler
     #scheduler=torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.5)
-    
+
     trainloader = DataLoader(train_dataset, batch_size=64, shuffle=True)
-    
+
     criterion = torch.nn.NLLLoss().to(device)
     criterion.to(dtype = torch.float16)  ################
-    
+
     epoch_loss = []
 
     for epoch in tqdm(range(args.epochs)):

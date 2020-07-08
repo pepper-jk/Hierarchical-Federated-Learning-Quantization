@@ -23,7 +23,7 @@ class DatasetSplit(Dataset):
     def __getitem__(self, item):
         image, label = self.dataset[self.idxs[item]]
         return torch.tensor(image), torch.tensor(label)
-       
+
 class LocalUpdate(object):
     def __init__(self, args, dataset, idxs, logger):
         self.args = args
@@ -101,7 +101,7 @@ class LocalUpdate(object):
 
         # Set dtype for criterion
         self.criterion.to(dtype)
-        
+
         for batch_idx, (images, labels) in enumerate(self.testloader):
             images, labels = images.to(self.device), labels.to(self.device)
             images = images.to(dtype)
@@ -131,18 +131,18 @@ def test_inference(args, model, test_dataset, dtype=torch.float32):
 
     # Select CPU or GPU
     device = utils.set_device(args)
-    
+
     criterion = nn.NLLLoss().to(device)
     # Set dtype for criterion
     criterion.to(dtype)
-    
+
     testloader = DataLoader(test_dataset, batch_size=128,
                             shuffle=False)
 
     for batch_idx, (images, labels) in enumerate(testloader):
         images, labels = images.to(device), labels.to(device)
         images = images.to(dtype)
-            
+
         # Inference
         outputs = model(images)
         batch_loss = criterion(outputs, labels)

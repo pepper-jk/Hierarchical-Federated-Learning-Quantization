@@ -38,19 +38,19 @@ if __name__ == '__main__':
 
     # user_groups = user_groupsold
     # keylist = list(user_groups.keys())
-    # ======= Shuffle dataset ======= 
+    # ======= Shuffle dataset =======
     keys =  list(user_groupsold.keys())
     random.shuffle(keys)
     user_groups = dict()
     for key in keys:
         user_groups.update({key:user_groupsold[key]})
-    # print(user_groups.keys()) 
+    # print(user_groups.keys())
     keylist = list(user_groups.keys())
     print("keylist: ", keylist)
-    # ======= Splitting into clusters. FL groups ======= 
+    # ======= Splitting into clusters. FL groups =======
     if args.num_clusters != 8:
         exit("Confirm that the number of clusters is 8?")
-    cluster_size = int(args.num_users / args.num_clusters)    
+    cluster_size = int(args.num_users / args.num_clusters)
     print("Each cluster size: ", cluster_size)
 
     # Cluster 1
@@ -61,7 +61,7 @@ if __name__ == '__main__':
     print("Size of cluster 1: ", len(user_groupsA))
     # Cluster 2
     B1 = keylist[cluster_size:2*cluster_size]
-    # B1 = np.random.choice(keylist, cluster_size, replace=False)    
+    # B1 = np.random.choice(keylist, cluster_size, replace=False)
     print("B1: ", B1)
     user_groupsB = {k:user_groups[k] for k in B1 if k in user_groups}
     print("Size of cluster 2: ", len(user_groupsB))
@@ -77,17 +77,17 @@ if __name__ == '__main__':
     print("D1: ", D1)
     user_groupsD = {k:user_groups[k] for k in D1 if k in user_groups}
     print("Size of cluster 4: ", len(user_groupsD))
-    # Cluster 5    
+    # Cluster 5
     E1 = keylist[4*cluster_size:5*cluster_size] #np.random.choice(keylist, cluster_size, replace=False)
     print("E1: ", E1)
     user_groupsE = {k:user_groups[k] for k in E1 if k in user_groups}
     print("Size of cluster 5: ", len(user_groupsE))
     # Cluster 6
-    F1 = keylist[5*cluster_size:6*cluster_size] #np.random.choice(keylist, cluster_size, replace=False)    
+    F1 = keylist[5*cluster_size:6*cluster_size] #np.random.choice(keylist, cluster_size, replace=False)
     print("F1: ", F1)
     user_groupsF = {k:user_groups[k] for k in F1 if k in user_groups}
     print("Size of cluster 6: ", len(user_groupsF))
-    # Cluster 7    
+    # Cluster 7
     G1 = keylist[6*cluster_size:7*cluster_size] #np.random.choice(keylist, cluster_size, replace=False)
     print("G1: ", G1)
     user_groupsG = {k:user_groups[k] for k in G1 if k in user_groups}
@@ -126,49 +126,49 @@ if __name__ == '__main__':
     cluster_modelA.train()
     # copy weights
     cluster_modelA_weights = cluster_modelA.state_dict()
-    
+
     # Cluster B
     cluster_modelB = build_model(args, train_dataset)
     cluster_modelB.to(device)
     cluster_modelB.to(dtype=torch.float16)
     cluster_modelB.train()
     cluster_modelB_weights = cluster_modelB.state_dict()
-    
+
     # Cluster C
     cluster_modelC = build_model(args, train_dataset)
     cluster_modelC.to(device)
     cluster_modelC.to(dtype=torch.float16)
     cluster_modelC.train()
     cluster_modelC_weights = cluster_modelC.state_dict()
-    
+
     # Cluster D
     cluster_modelD = build_model(args, train_dataset)
     cluster_modelD.to(device)
     cluster_modelD.to(dtype=torch.float16)
     cluster_modelD.train()
     cluster_modelD_weights = cluster_modelD.state_dict()
-    
+
     # Cluster E
     cluster_modelE = build_model(args, train_dataset)
     cluster_modelE.to(device)
     cluster_modelE.to(dtype=torch.float16)
     cluster_modelE.train()
     cluster_modelE_weights = cluster_modelE.state_dict()
-    
+
     # Cluster F
     cluster_modelF = build_model(args, train_dataset)
     cluster_modelF.to(device)
     cluster_modelF.to(dtype=torch.float16)
     cluster_modelF.train()
     cluster_modelF_weights = cluster_modelF.state_dict()
-    
+
     # Cluster G
     cluster_modelG = build_model(args, train_dataset)
     cluster_modelG.to(device)
     cluster_modelG.to(dtype=torch.float16)
     cluster_modelG.train()
     cluster_modelG_weights = cluster_modelG.state_dict()
-    
+
     # Cluster H
     cluster_modelH = build_model(args, train_dataset)
     cluster_modelH.to(device)
@@ -182,61 +182,61 @@ if __name__ == '__main__':
     cv_loss, cv_acc = [], []
     print_every = 1
     val_loss_pre, counter = 0, 0
-    testacc_check, epoch = 0, 0 
+    testacc_check, epoch = 0, 0
     idx = np.random.randint(0,99)
 
     # for epoch in tqdm(range(args.epochs)):
     for epoch in range(args.epochs):
     # while testacc_check < args.test_acc or epoch < args.epochs:
-    # while epoch < args.epochs:        
+    # while epoch < args.epochs:
         local_weights, local_losses, local_accuracies= [], [], []
         print(f'\n | Global Training Round : {epoch+1} |\n')
-        
+
         # ============== TRAIN ==============
         global_model.train()
-        
+
         # ===== Cluster A =====
-        A_model, A_weights, A_losses = fl_train(args, train_dataset, cluster_modelA, A1, user_groupsA, args.Cepochs, logger, cluster_dtype=torch.float16)        
+        A_model, A_weights, A_losses = fl_train(args, train_dataset, cluster_modelA, A1, user_groupsA, args.Cepochs, logger, cluster_dtype=torch.float16)
         local_weights.append(copy.deepcopy(A_weights))
-        local_losses.append(copy.deepcopy(A_losses))    
-        cluster_modelA = global_model# = A_model    
-        # ===== Cluster B ===== 
+        local_losses.append(copy.deepcopy(A_losses))
+        cluster_modelA = global_model# = A_model
+        # ===== Cluster B =====
         B_model, B_weights, B_losses = fl_train(args, train_dataset, cluster_modelB, B1, user_groupsB, args.Cepochs, logger, cluster_dtype=torch.float16)
         local_weights.append(copy.deepcopy(B_weights))
         local_losses.append(copy.deepcopy(B_losses))
-        cluster_modelB = global_model# = B_model 
-        # ===== Cluster C ===== 
+        cluster_modelB = global_model# = B_model
+        # ===== Cluster C =====
         C_model, C_weights, C_losses = fl_train(args, train_dataset, cluster_modelC, C1, user_groupsC, args.Cepochs, logger, cluster_dtype=torch.float16)
         local_weights.append(copy.deepcopy(C_weights))
-        local_losses.append(copy.deepcopy(C_losses))   
-        cluster_modelC = global_model# = C_model      
-        # ===== Cluster D ===== 
+        local_losses.append(copy.deepcopy(C_losses))
+        cluster_modelC = global_model# = C_model
+        # ===== Cluster D =====
         D_model, D_weights, D_losses = fl_train(args, train_dataset, cluster_modelD, D1, user_groupsD, args.Cepochs, logger, cluster_dtype=torch.float16)
         local_weights.append(copy.deepcopy(D_weights))
         local_losses.append(copy.deepcopy(D_losses))
-        cluster_modelD = global_model# = D_model 
-        # ===== Cluster E ===== 
-        E_model, E_weights, E_losses = fl_train(args, train_dataset, cluster_modelE, E1, user_groupsE, args.Cepochs, logger, cluster_dtype=torch.float16)        
+        cluster_modelD = global_model# = D_model
+        # ===== Cluster E =====
+        E_model, E_weights, E_losses = fl_train(args, train_dataset, cluster_modelE, E1, user_groupsE, args.Cepochs, logger, cluster_dtype=torch.float16)
         local_weights.append(copy.deepcopy(E_weights))
-        local_losses.append(copy.deepcopy(E_losses))    
-        cluster_modelE = global_model# = E_model    
-        # ===== Cluster F ===== 
+        local_losses.append(copy.deepcopy(E_losses))
+        cluster_modelE = global_model# = E_model
+        # ===== Cluster F =====
         F_model, F_weights, F_losses = fl_train(args, train_dataset, cluster_modelF, F1, user_groupsF, args.Cepochs, logger, cluster_dtype=torch.float16)
         local_weights.append(copy.deepcopy(F_weights))
         local_losses.append(copy.deepcopy(F_losses))
-        cluster_modelF = global_model# = F_model 
-        # ===== Cluster G ===== 
+        cluster_modelF = global_model# = F_model
+        # ===== Cluster G =====
         G_model, G_weights, G_losses = fl_train(args, train_dataset, cluster_modelG, G1, user_groupsG, args.Cepochs, logger, cluster_dtype=torch.float16)
         local_weights.append(copy.deepcopy(G_weights))
-        local_losses.append(copy.deepcopy(G_losses))   
-        cluster_modelG = global_model# = G_model      
-        # ===== Cluster H ===== 
+        local_losses.append(copy.deepcopy(G_losses))
+        cluster_modelG = global_model# = G_model
+        # ===== Cluster H =====
         H_model, H_weights, H_losses = fl_train(args, train_dataset, cluster_modelH, H1, user_groupsH, args.Cepochs, logger, cluster_dtype=torch.float16)
         local_weights.append(copy.deepcopy(H_weights))
         local_losses.append(copy.deepcopy(H_losses))
-        cluster_modelH = global_model# = H_model 
-        
-        
+        cluster_modelH = global_model# = H_model
+
+
         # averaging global weights
         global_weights = average_weights(local_weights)
 
@@ -245,8 +245,8 @@ if __name__ == '__main__':
 
         loss_avg = sum(local_losses) / len(local_losses)
         train_loss.append(loss_avg)
-        
-        # ============== EVAL ============== 
+
+        # ============== EVAL ==============
         # Calculate avg training accuracy over all users at every epoch
         list_acc, list_loss = [], []
         global_model.eval()
@@ -271,7 +271,7 @@ if __name__ == '__main__':
             print(f' \nAvg Training Stats after {epoch+1} global rounds:')
             print(f'Training Loss : {np.mean(np.array(train_loss))}')
             print('Train Accuracy: {:.2f}% \n'.format(100*train_accuracy[-1]))
-            
+
 
     print('\n Total Run Time: {0:0.4f}'.format(time.time()-start_time))
 
@@ -290,6 +290,5 @@ if __name__ == '__main__':
 
     with open(file_name, 'wb') as f:
         pickle.dump([train_loss, train_accuracy], f)
-    
+
     print('\n Total Run Time: {0:0.4f}'.format(time.time()-start_time))
-    

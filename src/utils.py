@@ -31,7 +31,7 @@ def get_dataset(args):
                                        # transform=apply_transform)
         train_dataset = datasets.CIFAR10(data_dir, train=True, download=True,
                                        transform=apply_transform)
-        
+
         # test_dataset = datasets.MNIST(data_dir, train=False, download=True,
         #                               transform=apply_transform)
         test_dataset = datasets.CIFAR10(data_dir, train=False, download=True,
@@ -53,7 +53,7 @@ def get_dataset(args):
                 user_groups = cifar_noniid(train_dataset, args.num_users)
 
 
-    elif args.dataset == 'mnist': 
+    elif args.dataset == 'mnist':
         data_dir = '../data/mnist/'
         apply_transform = transforms.Compose([
             transforms.ToTensor(),
@@ -80,10 +80,10 @@ def get_dataset(args):
                 # Chose equal splits for every user
                 print("Dataset: MNIST equal Non-IID")
                 user_groups = mnist_noniid(train_dataset, args.num_users)
-                
+
     else:
         exit("No such dataset: " + args.dataset)
-        
+
     return train_dataset, test_dataset, user_groups
 
 
@@ -124,10 +124,10 @@ def set_device(args):
     else:
         # Check that GPU is indeed available
         device = torch.device(args.gpu_id)
-    
+
     return device
-    
-    
+
+
 def build_model(args, train_dataset):
     if args.model == 'cnn':
         # Convolutional neural network
@@ -148,15 +148,15 @@ def build_model(args, train_dataset):
                                dim_out=args.num_classes)
     else:
         exit('Error- unrecognized model: ' + args.model)
-        
+
     return model
-    
-    
+
+
 def fl_train(args, train_dataset, cluster_global_model, cluster, usergrp, epochs, logger, cluster_dtype=torch.float32):
     """
     Defining the training function.
     """
-    
+
     cluster_train_loss, cluster_train_acc = [], []
     cluster_val_acc_list, cluster_net_list = [], []
     cluster_cv_loss, cluster_cv_acc = [], []
@@ -192,15 +192,15 @@ def fl_train(args, train_dataset, cluster_global_model, cluster, usergrp, epochs
         cluster_loss_avg = sum(cluster_local_losses) / len(cluster_local_losses)
         cluster_train_loss.append(cluster_loss_avg)
 
-        # ============== EVAL ============== 
+        # ============== EVAL ==============
         # Calculate avg training accuracy over all users at every epoch
         list_acc, list_loss = [], []
         cluster_global_model.eval()
         # C = np.random.choice(cluster, m, replace=False) # random set of clients
         # print("C: ", C)
         # for c in C:
-        # for c in range(len(cluster)):  
-        for c in idxs_users:      
+        # for c in range(len(cluster)):
+        for c in idxs_users:
             cluster_local_model = update.LocalUpdate(args=args, dataset=train_dataset, idxs=usergrp[c], logger=logger)
             # local_model = LocalUpdate(args=args, dataset=train_dataset,idxs=user_groups[idx], logger=logger)
             acc, loss = cluster_local_model.inference(model=cluster_global_model, dtype=cluster_dtype)
@@ -208,8 +208,8 @@ def fl_train(args, train_dataset, cluster_global_model, cluster, usergrp, epochs
             list_loss.append(loss)
         # cluster_train_acc.append(sum(list_acc)/len(list_acc))
         # Add
-    # print("Cluster accuracy: ", 100*cluster_train_acc[-1]) 
-    print("Cluster accuracy: ", 100*sum(list_acc)/len(list_acc)) 
+    # print("Cluster accuracy: ", 100*cluster_train_acc[-1])
+    print("Cluster accuracy: ", 100*sum(list_acc)/len(list_acc))
 
     return cluster_global_model, cluster_global_weights, cluster_loss_avg
 

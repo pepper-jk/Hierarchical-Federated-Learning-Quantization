@@ -38,16 +38,16 @@ if __name__ == '__main__':
 
     # user_groups = user_groupsold
     # keylist = list(user_groups.keys())
-    # ======= Shuffle dataset ======= 
+    # ======= Shuffle dataset =======
     keys =  list(user_groupsold.keys())
     random.shuffle(keys)
     user_groups = dict()
     for key in keys:
         user_groups.update({key:user_groupsold[key]})
-    # print(user_groups.keys()) 
+    # print(user_groups.keys())
     keylist = list(user_groups.keys())
     print("keylist: ", keylist)
-    # ======= Splitting into clusters. FL groups ======= 
+    # ======= Splitting into clusters. FL groups =======
     if args.num_clusters != 2:
         exit("Confirm that the number of clusters is 2?")
     cluster_size = int(args.num_users / args.num_clusters)
@@ -95,7 +95,7 @@ if __name__ == '__main__':
     cluster_modelA.train()
     # copy weights
     cluster_modelA_weights = cluster_modelA.state_dict()
-    
+
     # Cluster B
     cluster_modelB = build_model(args, train_dataset)
     cluster_modelB.to(device)
@@ -110,31 +110,31 @@ if __name__ == '__main__':
     cv_loss, cv_acc = [], []
     print_every = 1
     val_loss_pre, counter = 0, 0
-    testacc_check, epoch = 0, 0 
+    testacc_check, epoch = 0, 0
     # idx = np.random.randint(0,99)
 
     # for epoch in tqdm(range(args.epochs)):
     for epoch in range(args.epochs):
     # while testacc_check < args.test_acc or epoch < args.epochs:
-    # while epoch < args.epochs: 
+    # while epoch < args.epochs:
         local_weights, local_losses, local_accuracies= [], [], []
         print(f'\n | Global Training Round : {epoch+1} |\n')
-        
+
         # ============== TRAIN ==============
         global_model.train()
-        
-        # ===== Cluster A ===== 
-        A_model, A_weights, A_losses = fl_train(args, train_dataset, cluster_modelA, A1, user_groupsA, args.Cepochs, logger, cluster_dtype=torch.float16)        
+
+        # ===== Cluster A =====
+        A_model, A_weights, A_losses = fl_train(args, train_dataset, cluster_modelA, A1, user_groupsA, args.Cepochs, logger, cluster_dtype=torch.float16)
         local_weights.append(copy.deepcopy(A_weights))
-        local_losses.append(copy.deepcopy(A_losses))    
-        cluster_modelA = global_model# = A_model    
-        # ===== Cluster B ===== 
+        local_losses.append(copy.deepcopy(A_losses))
+        cluster_modelA = global_model# = A_model
+        # ===== Cluster B =====
         B_model, B_weights, B_losses = fl_train(args, train_dataset, cluster_modelB, B1, user_groupsB, args.Cepochs, logger, cluster_dtype=torch.float16)
         local_weights.append(copy.deepcopy(B_weights))
         local_losses.append(copy.deepcopy(B_losses))
-        cluster_modelB = global_model# = B_model 
-        
-        
+        cluster_modelB = global_model# = B_model
+
+
         # averaging global weights
         global_weights = average_weights(local_weights)
 
@@ -143,8 +143,8 @@ if __name__ == '__main__':
 
         loss_avg = sum(local_losses) / len(local_losses)
         train_loss.append(loss_avg)
-        
-        # ============== EVAL ============== 
+
+        # ============== EVAL ==============
         # Calculate avg training accuracy over all users at every epoch
         list_acc, list_loss = [], []
         global_model.eval()
@@ -169,7 +169,7 @@ if __name__ == '__main__':
             print(f' \nAvg Training Stats after {epoch+1} global rounds:')
             print(f'Training Loss : {np.mean(np.array(train_loss))}')
             print('Train Accuracy: {:.2f}% \n'.format(100*train_accuracy[-1]))
-            
+
 
     print('\n Total Run Time: {0:0.4f}'.format(time.time()-start_time))
 
@@ -188,6 +188,5 @@ if __name__ == '__main__':
 
     with open(file_name, 'wb') as f:
         pickle.dump([train_loss, train_accuracy], f)
-        
+
     print('\n Total Run Time: {0:0.4f}'.format(time.time()-start_time))
-    

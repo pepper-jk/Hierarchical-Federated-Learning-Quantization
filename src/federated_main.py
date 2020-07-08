@@ -47,7 +47,7 @@ if __name__ == '__main__':
     global_model.to(device)
     global_model.train()
     print(global_model)
-    
+
     # MODEL PARAM SUMMARY
     pytorch_total_params = sum(p.numel() for p in global_model.parameters())
     print("Model total number of parameters: ", pytorch_total_params)
@@ -62,7 +62,7 @@ if __name__ == '__main__':
     cv_loss, cv_acc = [], []
     print_every = 1
     val_loss_pre, counter = 0, 0
-    testacc_check, epoch = 0, 0 
+    testacc_check, epoch = 0, 0
 
     # for epoch in tqdm(range(args.epochs)):  # global training epochs
     for epoch in range(args.epochs):
@@ -76,7 +76,7 @@ if __name__ == '__main__':
 
         More details: It sets the mode to train (see source code). You can call either model.eval() or model.train(mode=False) to tell that you are testing. It is somewhat intuitive to expect train function to train model but it does not do that. It just sets the mode.
         """
-        # ============== TRAIN ============== 
+        # ============== TRAIN ==============
         global_model.train()
         m = max(int(args.frac * args.num_users), 1) # C = args.frac. Setting number of clients m for training
         idxs_users = np.random.choice(range(args.num_users), m, replace=False) # args.num_users=100 total clients. Choosing a random array of indices. Subset of clients.
@@ -98,7 +98,7 @@ if __name__ == '__main__':
         loss_avg = sum(local_losses) / len(local_losses)
         train_loss.append(loss_avg) # Performance measure
 
-        # ============== EVAL ============== 
+        # ============== EVAL ==============
         # Calculate avg training accuracy over all users at every epoch
         list_acc, list_loss = [], []
         global_model.eval() # must set your model into evaluation mode when computing model output values if dropout or bach norm used for training.
@@ -106,7 +106,7 @@ if __name__ == '__main__':
         for c in range(args.num_users): # 0 to 99
             # local_model = LocalUpdate(args=args, dataset=train_dataset,
             #                           idxs=user_groups[idx], logger=logger)
-            # Fix error idxs=user_groups[idx] to idxs=user_groups[c]                                      
+            # Fix error idxs=user_groups[idx] to idxs=user_groups[c]
             local_model = LocalUpdate(args=args, dataset=train_dataset,
                                       idxs=user_groups[c], logger=logger)
             acc, loss = local_model.inference(model=global_model)
