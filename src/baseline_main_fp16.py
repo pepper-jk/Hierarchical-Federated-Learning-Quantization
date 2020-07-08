@@ -21,13 +21,11 @@ from torchsummary import summary
 
 
 if __name__ == '__main__':
-    start_time = time.time()
-
     args = args_parser()
+    start_time = time.time()
 
     # Select CPU or GPU
     device = set_device(args)
-
 
     # load datasets
     train_dataset, test_dataset, _ = get_dataset(args)
