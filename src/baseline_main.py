@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import torch
 from torch.utils.data import DataLoader
 
-from utils import get_dataset
+from utils import get_dataset, set_device, build_model
 from options import args_parser
 from update import test_inference
 from models import MLP, CNNMnist, CNNFashion_Mnist, CNNCifar
@@ -18,34 +18,20 @@ import time
 
 if __name__ == '__main__':
     args = args_parser()
-    if args.gpu:
-        torch.cuda.set_device(args.gpu)
-    device = 'cuda' if args.gpu else 'cpu'
-
     start_time = time.time()
+
+    # Select CPU or GPU
+    device = set_device(args)
 
     # load datasets
     train_dataset, test_dataset, _ = get_dataset(args)
 
     # BUILD MODEL
-    if args.model == 'cnn':
-        # Convolutional neural netork
-        if args.dataset == 'mnist':
-            global_model = CNNMnist(args=args)
-        elif args.dataset == 'fmnist':
-            global_model = CNNFashion_Mnist(args=args)
-        elif args.dataset == 'cifar':
-            global_model = CNNCifar(args=args)
-    elif args.model == 'mlp':
-        # Multi-layer preceptron
-        img_size = train_dataset[0][0].shape
-        len_in = 1
-        for x in img_size:
-            len_in *= x
-            global_model = MLP(dim_in=len_in, dim_hidden=64,
-                               dim_out=args.num_classes)
-    else:
-        exit('Error: unrecognized model')
+    # FXIME: was this a bug or intentional?
+    if not args.floating_point_16:
+        # mimics original behavior of baseline_main
+        args.mlpdim=64
+    global_model = build_model(args, train_dataset)
 
     # Set the model to train and send it to device.
     global_model.to(device)
