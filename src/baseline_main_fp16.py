@@ -36,7 +36,7 @@ if __name__ == '__main__':
     # Set the model to train and send it to device.
     global_model.to(device)
     # Set model to use Floating Point 16
-    global_model.to(dtype=torch.float16)  ##########
+    global_model.to(dtype=torch.float16)
     global_model.train()
     print(global_model)
     #img_size = train_dataset[0][0].shape
@@ -69,7 +69,7 @@ if __name__ == '__main__':
     trainloader = DataLoader(train_dataset, batch_size=64, shuffle=True)
 
     criterion = torch.nn.NLLLoss().to(device)
-    criterion.to(dtype = torch.float16)  ################
+    criterion.to(dtype = torch.float16)
 
     epoch_loss = []
 
@@ -77,7 +77,7 @@ if __name__ == '__main__':
         batch_loss = []
 
         for batch_idx, (images, labels) in enumerate(trainloader):
-            images=images.to(dtype=torch.float16)  #################
+            images=images.to(dtype=torch.float16)
             images, labels = images.to(device), labels.to(device)
 
             optimizer.zero_grad()
@@ -98,7 +98,7 @@ if __name__ == '__main__':
 
 
     # testing
-    test_acc, test_loss = test_inference(args, global_model, test_dataset, dtype=torch.float16)  ############
+    test_acc, test_loss = test_inference(args, global_model, test_dataset, dtype=torch.float16)
     print('Test on', len(test_dataset), 'samples')
     print("Test Accuracy: {:.2f}%".format(100*test_acc))
 
