@@ -4,7 +4,7 @@
 # Website on how to write bash script https://hackernoon.com/know-shell-scripting-202b2fbe03a8
 
 # This is the baseline without FL for 16-bit floating point.
-python ./baseline_main_fp16.py --epochs=10 --model="mlp" --dataset="mnist" --num_classes=10 --gpu=1 --gpu_id="cuda:0" --mlpdim=200
+python ./baseline_main.py --floating_point_16 --epochs=10 --model="mlp" --dataset="mnist" --num_classes=10 --gpu=1 --gpu_id="cuda:0" --mlpdim=200
 
 python ./federated_main_fp16.py --local_ep=1 --local_bs=10 --frac=0.1 --model=mlp --dataset=mnist --iid=1 --gpu=1 --lr=0.01 --test_acc=95 --mlpdim=200 --epochs=200
 
