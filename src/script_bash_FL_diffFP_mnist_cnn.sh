@@ -40,15 +40,15 @@ python federated-hierarchical8_main.py --local_ep=1 --local_bs=10 --Cepochs=10 -
 
 # ================ 16-bit ================
 # This is for 1 cluster FL for 16-bit floating point
-python ./federated_main_fp16.py --local_ep=1 --local_bs=10 --frac=0.1 --model=cnn --dataset=mnist --iid=1 --gpu=1 --gpu_id=$GPU_ID --lr=0.01 --test_acc=97 --epochs=100
+python ./federated_main.py --floating_point_16 --local_ep=1 --local_bs=10 --frac=0.1 --model=cnn --dataset=mnist --iid=1 --gpu=1 --gpu_id=$GPU_ID --lr=0.01 --test_acc=97 --epochs=100
 
-python ./federated_main_fp16.py --local_ep=1 --local_bs=10 --frac=0.1 --model=cnn --dataset=mnist --iid=0 --gpu=1 --gpu_id=$GPU_ID --lr=0.01 --epochs=261 --test_acc=97
+python ./federated_main.py --floating_point_16 --local_ep=1 --local_bs=10 --frac=0.1 --model=cnn --dataset=mnist --iid=0 --gpu=1 --gpu_id=$GPU_ID --lr=0.01 --epochs=261 --test_acc=97
 
 
 # This is for 2 clusters FL for 16-bit floating point
-python ./federated-hierarchical2_main_fp16.py --local_ep=1 --local_bs=10 --frac=0.1 --Cepochs=10 --model=cnn --dataset=mnist --iid=1 --num_cluster=2 --gpu=1 --gpu_id=$GPU_ID --lr=0.01 --epochs=100
+python ./federated-hierarchical2_main.py --floating_point_16 --local_ep=1 --local_bs=10 --frac=0.1 --Cepochs=10 --model=cnn --dataset=mnist --iid=1 --num_cluster=2 --gpu=1 --gpu_id=$GPU_ID --lr=0.01 --epochs=100
 
-python ./federated-hierarchical2_main_fp16.py --local_ep=1 --local_bs=10 --frac=0.1 --Cepochs=10 --model=cnn --dataset=mnist --iid=0 --num_cluster=2 --gpu=1 --gpu_id=$GPU_ID --lr=0.01 --epochs=100
+python ./federated-hierarchical2_main.py --floating_point_16 --local_ep=1 --local_bs=10 --frac=0.1 --Cepochs=10 --model=cnn --dataset=mnist --iid=0 --num_cluster=2 --gpu=1 --gpu_id=$GPU_ID --lr=0.01 --epochs=100
 
 
 # This is for 4 clusters FL for 16-bit floating point

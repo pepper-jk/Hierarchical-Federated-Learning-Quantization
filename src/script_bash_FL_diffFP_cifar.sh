@@ -28,11 +28,11 @@ python federated-hierarchical8_main.py --local_ep=5 --local_bs=50 --Cepochs=10 -
 
 # ================ 16-bit ================
 # This is for FL for 16-bit floating point
-python ./federated_main_fp16.py --local_ep=5 --local_bs=50 --frac=0.1 --model=cnn --dataset=cifar --iid=1 --gpu=1 --gpu_id=$GPU_ID --lr=0.01 --epochs=300
+python ./federated_main.py --floating_point_16 --local_ep=5 --local_bs=50 --frac=0.1 --model=cnn --dataset=cifar --iid=1 --gpu=1 --gpu_id=$GPU_ID --lr=0.01 --epochs=300
 
 
 # This is for 2 clusters FL for 16-bit floating point
-python ./federated-hierarchical2_main_fp16.py --local_ep=5 --local_bs=50 --frac=0.1 --Cepochs=10 --model=cnn --dataset=cifar --iid=1 --num_cluster=2 --gpu=1 --gpu_id=$GPU_ID --lr=0.01 --epochs=100
+python ./federated-hierarchical2_main.py --floating_point_16 --local_ep=5 --local_bs=50 --frac=0.1 --Cepochs=10 --model=cnn --dataset=cifar --iid=1 --num_cluster=2 --gpu=1 --gpu_id=$GPU_ID --lr=0.01 --epochs=100
 
 
 # This is for 4 clusters FL for 16-bit floating point
