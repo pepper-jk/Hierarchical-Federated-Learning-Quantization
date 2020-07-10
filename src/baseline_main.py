@@ -35,11 +35,15 @@ if __name__ == '__main__':
         args.mlpdim=64
     global_model = build_model(args, train_dataset)
 
-    # Set the model to train and send it to device.
-    global_model.to(device)
+    data_type = torch.float32
+    appendage = ''
     # Set model to use Floating Point 16
     if args.floating_point_16:
-        global_model.to(dtype=torch.float16)
+        data_type = torch.float16
+        appendage = '_FP16'
+
+    # Set the model to train and send it to device.
+    global_model.to(device, dtype=data_type)
     global_model.train()
     print(global_model)
 
@@ -64,9 +68,7 @@ if __name__ == '__main__':
         exit('Error- unrecognized optimizer: ' + args.optimizer)
 
     trainloader = DataLoader(train_dataset, batch_size=64, shuffle=True)
-    criterion = torch.nn.NLLLoss().to(device)
-    if args.floating_point_16:
-        criterion.to(dtype = torch.float16)
+    criterion = torch.nn.NLLLoss().to(device, dtype=data_type)
 
     epoch_loss = []
 
@@ -74,9 +76,7 @@ if __name__ == '__main__':
         batch_loss = []
 
         for batch_idx, (images, labels) in enumerate(trainloader):
-            if args.floating_point_16:
-                images=images.to(dtype=torch.float16)
-            images, labels = images.to(device), labels.to(device)
+            images, labels = images.to(device, dtype=data_type), labels.to(device)
 
             optimizer.zero_grad()
             outputs = global_model(images)
@@ -96,18 +96,12 @@ if __name__ == '__main__':
 
 
     # testing
-    data_type = torch.float32
-    if args.floating_point_16:
-        data_type = torch.float16
     test_acc, test_loss = test_inference(args, global_model, test_dataset, dtype=data_type)
     print('Test on', len(test_dataset), 'samples')
     print("Test Accuracy: {:.2f}%".format(100*test_acc))
 
 
     # Saving the objects train_loss, test_acc, test_loss:
-    appendage = ''
-    if args.floating_point_16:
-        appendage = '_FP16'
     file_name = '../save/objects{}/BaseSGD_{}_{}_epoch[{}]_lr[{}]_iid[{}]{}.pkl'.\
         format(appendage.lower(), args.dataset, args.model, epoch, args.lr, args.iid, appendage)
 
