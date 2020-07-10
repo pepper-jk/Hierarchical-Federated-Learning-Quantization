@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 # Python version: 3.6
 
-
 import os
 import copy
 import time
@@ -50,8 +49,6 @@ if __name__ == '__main__':
     print("keylist: ", keylist)
     # ======= Splitting into clusters. FL groups =======
     cluster_size = int(args.num_users / args.num_clusters)
-    # cluster_size = 50
-    # print("Each cluster size: ", cluster_size)
 
     # Cluster 1
     # A1 = np.arange(cluster_size, dtaype=int)
@@ -107,12 +104,8 @@ if __name__ == '__main__':
     print_every = 1
     val_loss_pre, counter = 0, 0
     testacc_check, epoch = 0, 0
-    # idx = np.random.randint(0,99)
 
-    # for epoch in tqdm(range(args.epochs)):
     for epoch in range(args.epochs):
-    # while testacc_check < args.test_acc or epoch < args.epochs:
-    # while epoch < args.epochs:
         local_weights, local_losses, local_accuracies= [], [], []
         print(f'\n | Global Training Round : {epoch+1} |\n')
 
@@ -144,12 +137,7 @@ if __name__ == '__main__':
         # Calculate avg training accuracy over all users at every epoch
         list_acc, list_loss = [], []
         global_model.eval()
-        # print("========== idx ========== ", idx)
         for c in range(args.num_users):
-        # for c in range(cluster_size):
-        # C = np.random.choice(keylist, int(args.frac * args.num_users), replace=False) # random set of clients
-        # print("C: ", C)
-        # for c in C:
             local_model = LocalUpdate(args=args, dataset=train_dataset,
                                       idxs=user_groups[c], logger=logger)
             acc, loss = local_model.inference(model=global_model)
