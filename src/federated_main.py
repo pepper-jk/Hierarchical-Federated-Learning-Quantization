@@ -38,8 +38,15 @@ if __name__ == '__main__':
     # BUILD MODEL
     global_model = build_model(args, train_dataset)
 
+    data_type = torch.float32
+    appendage = ''
+    # Set model to use Floating Point 16
+    if args.floating_point_16:
+        data_type = torch.float16
+        appendage = '_FP16'
+
     # Set the model to train and send it to device.
-    global_model.to(device)
+    global_model.to(device, dtype=data_type)
     global_model.train()
     print(global_model)
 
@@ -77,7 +84,8 @@ if __name__ == '__main__':
             local_model = LocalUpdate(args=args, dataset=train_dataset,
                                       idxs=user_groups[idx], logger=logger)
             w, loss = local_model.update_weights( # update_weights() contain multiple prints
-                model=copy.deepcopy(global_model), global_round=epoch) # w = local model weights
+                model=copy.deepcopy(global_model), global_round=epoch, dtype=data_type)
+                # w = local model weights
             local_weights.append(copy.deepcopy(w))
             local_losses.append(copy.deepcopy(loss))
 
@@ -98,7 +106,7 @@ if __name__ == '__main__':
         for c in range(args.num_users): # 0 to 99
             local_model = LocalUpdate(args=args, dataset=train_dataset,
                                       idxs=user_groups[c], logger=logger)
-            acc, loss = local_model.inference(model=global_model)
+            acc, loss = local_model.inference(model=global_model, dtype=data_type)
             list_acc.append(acc)
             list_loss.append(loss)
         train_accuracy.append(sum(list_acc)/len(list_acc)) # Performance measure
@@ -114,16 +122,16 @@ if __name__ == '__main__':
             print('Train Accuracy: {:.2f}% \n'.format(100*train_accuracy[-1]))
 
     # Test inference after completion of training
-    test_acc, test_loss = test_inference(args, global_model, test_dataset)
+    test_acc, test_loss = test_inference(args, global_model, test_dataset, dtype=data_type)
 
     print(f' \n Results after {epoch} global rounds of training:')
     print("|---- Avg Train Accuracy: {:.2f}%".format(100*train_accuracy[-1]))
     print("|---- Test Accuracy: {:.2f}%".format(100*test_acc))
 
     # Saving the objects train_loss and train_accuracy:
-    file_name = '../save/objects/FL_{}_{}_{}_lr[{}]_C[{}]_iid[{}]_E[{}]_B[{}].pkl'.\
-        format(args.dataset, args.model, epoch, args.lr, args.frac, args.iid,
-               args.local_ep, args.local_bs)
+    file_name = '../save/objects{}/FL_{}_{}_{}_lr[{}]_C[{}]_iid[{}]_E[{}]_B[{}]{}.pkl'.\
+        format(appendage.lower(), args.dataset, args.model, epoch, args.lr, args.frac,
+               args.iid, args.local_ep, args.local_bs, appendage)
 
     with open(file_name, 'wb') as f:
         pickle.dump([train_loss, train_accuracy], f)
