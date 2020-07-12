@@ -43,8 +43,6 @@ if __name__ == '__main__':
     # load dataset and user groups
     train_dataset, test_dataset, user_groupsold = get_dataset(args)
 
-    # user_groups = user_groupsold
-    # keylist = list(user_groups.keys())
     # ======= Shuffle dataset =======
     keys =  list(user_groupsold.keys())
     random.shuffle(keys)
@@ -58,14 +56,12 @@ if __name__ == '__main__':
     cluster_size = int(args.num_users / args.num_clusters)
 
     # Cluster 1
-    # A1 = np.arange(cluster_size, dtaype=int)
     A1 = keylist[:cluster_size]
     # A1 = np.random.choice(keylist, cluster_size, replace=False)
     print("A1: ", A1)
     user_groupsA = {k:user_groups[k] for k in A1 if k in user_groups}
     print("Size of cluster 1: ", len(user_groupsA))
     # Cluster 2
-    # B1 = np.arange(cluster_size, cluster_size+cluster_size, dtype=int)
     B1 = keylist[cluster_size:2*cluster_size]
     # B1 = np.random.choice(keylist, cluster_size, replace=False)
     print("B1: ", B1)
@@ -77,10 +73,6 @@ if __name__ == '__main__':
     pytorch_total_params = sum(p.numel() for p in global_model.parameters())
     print("Model total number of parameters: ", pytorch_total_params)
 
-    # from torchsummary import summary
-    # summary(global_model, (1, 28, 28))
-    # global_model.parameters()
-
     # Set the model to train and send it to device.
     global_model.to(device, dtype=data_type)
     global_model.train()
@@ -89,7 +81,6 @@ if __name__ == '__main__':
     # copy weights
     global_weights = global_model.state_dict()
 
-
     # ======= Set the cluster models to train and send it to device. =======
     # Cluster A
     cluster_modelA = build_model(args, train_dataset)
@@ -97,7 +88,6 @@ if __name__ == '__main__':
     cluster_modelA.train()
     # copy weights
     cluster_modelA_weights = cluster_modelA.state_dict()
-
     # Cluster B
     cluster_modelB = build_model(args, train_dataset)
     cluster_modelB.to(device, dtype=data_type)
@@ -130,7 +120,6 @@ if __name__ == '__main__':
         local_weights.append(copy.deepcopy(B_weights))
         local_losses.append(copy.deepcopy(B_losses))
         cluster_modelB = global_model# = B_model
-
 
         # averaging global weights
         global_weights = average_weights(local_weights)
