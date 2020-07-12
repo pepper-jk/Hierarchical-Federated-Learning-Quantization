@@ -54,19 +54,22 @@ if __name__ == '__main__':
     print("keylist: ", keylist)
     # ======= Splitting into clusters. FL groups =======
     cluster_size = int(args.num_users / args.num_clusters)
+    print("Each cluster size: ", cluster_size)
 
-    # Cluster 1
-    A1 = keylist[:cluster_size]
-    # A1 = np.random.choice(keylist, cluster_size, replace=False)
-    print("A1: ", A1)
-    user_groupsA = {k:user_groups[k] for k in A1 if k in user_groups}
-    print("Size of cluster 1: ", len(user_groupsA))
-    # Cluster 2
-    B1 = keylist[cluster_size:2*cluster_size]
-    # B1 = np.random.choice(keylist, cluster_size, replace=False)
-    print("B1: ", B1)
-    user_groupsB = {k:user_groups[k] for k in B1 if k in user_groups}
-    print("Size of cluster 2: ", len(user_groupsB))
+    keylists_per_cluster = []
+    user_groups_per_cluster = []
+
+    for i in range(0, args.num_clusters):
+        # Cluster i
+        keylist_cluster = keylist[i*cluster_size:(i+1)*cluster_size]
+        # TODO: make a cli argument cluster members random
+        # FIXME: randomize only over left over keys
+        # keylist_cluster = np.random.choice(keylist, cluster_size, replace=False)
+        keylists_per_cluster.append(keylist_cluster)
+        print("Cluster {}: ".format(i), keylist_cluster)
+        user_groups_cluster = {k:user_groups[k] for k in keylist_cluster if k in user_groups}
+        user_groups_per_cluster.append(user_groups_cluster)
+        print("Size of cluster {}: ".format(i), len(user_groups_cluster))
 
     # MODEL PARAM SUMMARY
     global_model = build_model(args, train_dataset)
@@ -82,19 +85,19 @@ if __name__ == '__main__':
     global_weights = global_model.state_dict()
 
     # ======= Set the cluster models to train and send it to device. =======
-    # Cluster A
-    cluster_modelA = build_model(args, train_dataset)
-    cluster_modelA.to(device, dtype=data_type)
-    cluster_modelA.train()
-    # copy weights
-    cluster_modelA_weights = cluster_modelA.state_dict()
-    # Cluster B
-    cluster_modelB = build_model(args, train_dataset)
-    cluster_modelB.to(device, dtype=data_type)
-    cluster_modelB.train()
-    # copy weights
-    cluster_modelB_weights = cluster_modelB.state_dict()
+    model_per_cluster = []
+    weights_per_cluster = []
 
+    for i in range(0, args.num_clusters):
+        # build model
+        cluster_model = build_model(args, train_dataset)
+        cluster_model.to(device, dtype=data_type)
+        cluster_model.train()
+        # copy weights
+        cluster_model_weights = cluster_model.state_dict()
+        # save model and weights for later use
+        model_per_cluster.append(cluster_model)
+        weights_per_cluster.append(cluster_model_weights)
 
     train_loss, train_accuracy = [], []
     val_acc_list, net_list = [], []
@@ -110,16 +113,13 @@ if __name__ == '__main__':
         # ============== TRAIN ==============
         global_model.train()
 
-        # ===== Cluster A =====
-        A_model, A_weights, A_losses = fl_train(args, train_dataset, cluster_modelA, A1, user_groupsA, args.Cepochs, logger, cluster_dtype=data_type)
-        local_weights.append(copy.deepcopy(A_weights))
-        local_losses.append(copy.deepcopy(A_losses))
-        cluster_modelA = global_model# = A_model
-        # ===== Cluster B =====
-        B_model, B_weights, B_losses = fl_train(args, train_dataset, cluster_modelB, B1, user_groupsB, args.Cepochs, logger, cluster_dtype=data_type)
-        local_weights.append(copy.deepcopy(B_weights))
-        local_losses.append(copy.deepcopy(B_losses))
-        cluster_modelB = global_model# = B_model
+        # ===== Clusters =====
+
+        for i in range(0, args.num_clusters):
+            model, weights, losses = fl_train(args, train_dataset, model_per_cluster[i], keylists_per_cluster[i], user_groups_per_cluster[i], args.Cepochs, logger, cluster_dtype=data_type)
+            local_weights.append(copy.deepcopy(weights))
+            local_losses.append(copy.deepcopy(losses))
+            model_per_cluster[i] = global_model# = model
 
         # averaging global weights
         global_weights = average_weights(local_weights)
