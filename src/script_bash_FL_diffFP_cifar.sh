@@ -14,15 +14,15 @@ python federated_main.py --local_ep=5 --local_bs=50 --frac=0.1 --model=cnn --dat
 
 
 # This is for 2 clusters HFL for 32-bit floating point
-python federated-hierarchical2_main.py --local_ep=5 --local_bs=50 --frac=0.1 --Cepochs=10 --model=cnn --dataset=cifar --iid=1 --num_cluster=2 --gpu=1 --lr=0.01 --epochs=100
+python federated-hierarchical_main.py --local_ep=5 --local_bs=50 --frac=0.1 --Cepochs=10 --model=cnn --dataset=cifar --iid=1 --num_cluster=2 --gpu=1 --lr=0.01 --epochs=100
 
 
 # This is for 4 clusters HFL for 32-bit floating point
-python federated-hierarchical4_main.py --local_ep=5 --local_bs=50 --frac=0.1 --Cepochs=10 --model=cnn --dataset=cifar --iid=1 --gpu=1 --lr=0.01 --epochs=100 --num_cluster=4
+python federated-hierarchical_main.py --local_ep=5 --local_bs=50 --frac=0.1 --Cepochs=10 --model=cnn --dataset=cifar --iid=1 --gpu=1 --lr=0.01 --epochs=100 --num_cluster=4
 
 
 # This is for 8 clusters HFL for 32-bit floating point
-python federated-hierarchical8_main.py --local_ep=5 --local_bs=50 --Cepochs=10 --model=cnn --dataset=cifar --iid=1 --gpu=1 --lr=0.01 --epochs=100 --num_cluster=8
+python federated-hierarchical_main.py --local_ep=5 --local_bs=50 --Cepochs=10 --model=cnn --dataset=cifar --iid=1 --gpu=1 --lr=0.01 --epochs=100 --num_cluster=8
 
 
 
@@ -32,12 +32,12 @@ python ./federated_main.py --floating_point_16 --local_ep=5 --local_bs=50 --frac
 
 
 # This is for 2 clusters FL for 16-bit floating point
-python ./federated-hierarchical2_main.py --floating_point_16 --local_ep=5 --local_bs=50 --frac=0.1 --Cepochs=10 --model=cnn --dataset=cifar --iid=1 --num_cluster=2 --gpu=1 --gpu_id=$GPU_ID --lr=0.01 --epochs=100
+python ./federated-hierarchical_main.py --floating_point_16 --local_ep=5 --local_bs=50 --frac=0.1 --Cepochs=10 --model=cnn --dataset=cifar --iid=1 --num_cluster=2 --gpu=1 --gpu_id=$GPU_ID --lr=0.01 --epochs=100
 
 
 # This is for 4 clusters FL for 16-bit floating point
-python ./federated-hierarchical4_main_fp16.py --local_ep=5 --local_bs=50 --frac=0.1 --Cepochs=10 --model=cnn --dataset=cifar --iid=1 --gpu=1 --gpu_id=$GPU_ID --lr=0.01 --epochs=100 --num_cluster=4
+python ./federated-hierarchical_main.py --floating_point_16 --local_ep=5 --local_bs=50 --frac=0.1 --Cepochs=10 --model=cnn --dataset=cifar --iid=1 --gpu=1 --gpu_id=$GPU_ID --lr=0.01 --epochs=100 --num_cluster=4
 
 
 # This is for 8 clusters FL for 16-bit floating point
-python ./federated-hierarchical8_main_fp16.py --local_ep=5 --local_bs=50 --Cepochs=10 --model=cnn --dataset=cifar --iid=1 --gpu=1 --gpu_id=$GPU_ID --lr=0.01 --epochs=100 --num_cluster=8
+python ./federated-hierarchical_main.py --floating_point_16 --local_ep=5 --local_bs=50 --Cepochs=10 --model=cnn --dataset=cifar --iid=1 --gpu=1 --gpu_id=$GPU_ID --lr=0.01 --epochs=100 --num_cluster=8

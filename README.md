@@ -59,18 +59,18 @@ Hierarchical federated experiment involves training a global model using many lo
 
 * To run the hierarchical federated experiment with 2 clusters on MNIST using CNN (IID):
 ```
-python federated-hierarchical2_main.py --local_ep=1 --local_bs=10 --frac=0.1 --Cepochs=10 --model=cnn --dataset=mnist --iid=1 --num_cluster=2 --gpu=1 --lr=0.01 --epochs=100
+python federated-hierarchical_main.py --local_ep=1 --local_bs=10 --frac=0.1 --Cepochs=10 --model=cnn --dataset=mnist --iid=1 --num_cluster=2 --gpu=1 --lr=0.01 --epochs=100
 ```
 * To run the same experiment under non-IID condition:
 ```
-python federated-hierarchical2_main.py --local_ep=1 --local_bs=10 --frac=0.1 --Cepochs=10 --model=cnn --dataset=mnist --iid=0 --num_cluster=2 --gpu=1 --lr=0.01 --epochs=100
+python federated-hierarchical_main.py --local_ep=1 --local_bs=10 --frac=0.1 --Cepochs=10 --model=cnn --dataset=mnist --iid=0 --num_cluster=2 --gpu=1 --lr=0.01 --epochs=100
 ```
 -----
 Hierarchical Federated experiments involve training a global model using different clusters with many local models (16-bit).
 
 * To run the hierarchical federated experiment with 2 clusters on CIFAR using CNN (IID):
 ```
-python ./federated-hierarchical2_main_fp16.py --local_ep=5 --local_bs=50 --frac=0.1 --Cepochs=10 --model=cnn --dataset=cifar --iid=1 --num_cluster=2 --gpu=1 --lr=0.01 --epochs=100
+python ./federated-hierarchical_main.py --floating_point_16 --local_ep=5 --local_bs=50 --frac=0.1 --Cepochs=10 --model=cnn --dataset=cifar --iid=1 --num_cluster=2 --gpu=1 --lr=0.01 --epochs=100
 ```
 
 
