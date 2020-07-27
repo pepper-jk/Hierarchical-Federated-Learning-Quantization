@@ -26,8 +26,12 @@ class DatasetSplit(Dataset):
 
 class LocalUpdate(object):
     def __init__(self, args, dataset, idxs, logger):
-        self.args = args
+        self.optimizer = args.optimizer
+        self.lr = args.lr
+        self.local_ep = args.local_ep
+        self.local_bs = args.local_bs
         self.logger = logger
+        self.verbose = args.verbose
         self.trainloader, self.validloader, self.testloader = self.train_val_test(
             dataset, list(idxs))
         # Select CPU or GPU
@@ -46,7 +50,7 @@ class LocalUpdate(object):
         idxs_test = idxs[int(0.9*len(idxs)):]
 
         trainloader = DataLoader(DatasetSplit(dataset, idxs_train),
-                                 batch_size=self.args.local_bs, shuffle=True)
+                                 batch_size=self.local_bs, shuffle=True)
         validloader = DataLoader(DatasetSplit(dataset, idxs_val),
                                  batch_size=int(len(idxs_val)/10), shuffle=False)
         testloader = DataLoader(DatasetSplit(dataset, idxs_test),
@@ -61,14 +65,14 @@ class LocalUpdate(object):
         self.criterion.to(dtype)
 
         # Set optimizer for the local updates
-        if self.args.optimizer == 'sgd':
-            optimizer = torch.optim.SGD(model.parameters(), lr=self.args.lr,
+        if self.optimizer == 'sgd':
+            optimizer = torch.optim.SGD(model.parameters(), lr=self.lr,
                                         momentum=0.5)
-        elif self.args.optimizer == 'adam':
-            optimizer = torch.optim.Adam(model.parameters(), lr=self.args.lr,
+        elif self.optimizer == 'adam':
+            optimizer = torch.optim.Adam(model.parameters(), lr=self.lr,
                                          weight_decay=1e-4)
 
-        for iter in range(self.args.local_ep):
+        for iter in range(self.local_ep):
             batch_loss = []
             for batch_idx, (images, labels) in enumerate(self.trainloader):
                 images, labels = images.to(self.device), labels.to(self.device)
@@ -81,7 +85,7 @@ class LocalUpdate(object):
                 loss.backward()
                 optimizer.step()
 
-                # if self.args.verbose and (batch_idx % 10 == 0):
+                # if self.verbose and (batch_idx % 10 == 0):
                 #     print('| Global Round : {} | Local Epoch : {} | [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                 #         global_round, iter, batch_idx * len(images),
                 #         len(self.trainloader.dataset),
