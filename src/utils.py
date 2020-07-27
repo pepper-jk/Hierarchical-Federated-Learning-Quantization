@@ -118,12 +118,15 @@ def exp_details(args):
 
 
 def set_device(args):
+    return _set_device(args.gpu, args.gpu_id)
+
+def _set_device(gpu, gpu_id):
     # Select CPU or GPU
-    if not args.gpu or not torch.cuda.is_available():
+    if not gpu or not torch.cuda.is_available():
         device=torch.device('cpu')
     else:
         # Check that GPU is indeed available
-        device = torch.device(args.gpu_id)
+        device = torch.device(gpu_id)
 
     return device
 
