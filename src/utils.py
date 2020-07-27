@@ -132,25 +132,28 @@ def _set_device(gpu, gpu_id):
 
 
 def build_model(args, train_dataset):
-    if args.model == 'cnn':
-        # Convolutional neural network
-        if args.dataset == 'mnist':
-            model = CNNMnist(args=args)
-        elif args.dataset == 'fmnist':
-            model = CNNFashion_Mnist(args=args)
-        elif args.dataset == 'cifar':
-            model = CNNCifar(args=args)
+    return _build_model(args.model, args.dataset, args.mlpdim, args.num_classes, args.num_channels, train_dataset)
 
-    elif args.model == 'mlp':
+def _build_model(model, dataset, mlpdim, num_classes, num_channels, train_dataset):
+    if model == 'cnn':
+        # Convolutional neural network
+        if dataset == 'mnist':
+            model = CNNMnist(num_channels, num_classes)
+        elif dataset == 'fmnist':
+            model = CNNFashion_Mnist()
+        elif dataset == 'cifar':
+            model = CNNCifar(num_classes)
+
+    elif model == 'mlp':
         # Multi-layer preceptron
         img_size = train_dataset[0][0].shape
         len_in = 1
         for x in img_size:
             len_in *= x
-        model = MLP(dim_in=len_in, dim_hidden=args.mlpdim,
-                               dim_out=args.num_classes)
+        model = MLP(dim_in=len_in, dim_hidden=mlpdim,
+                               dim_out=num_classes)
     else:
-        exit('Error- unrecognized model: ' + args.model)
+        exit('Error- unrecognized model: ' + model)
 
     return model
 
