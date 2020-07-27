@@ -120,17 +120,19 @@ class LocalUpdate(object):
         accuracy = correct/total
         return accuracy, loss
 
-
 def test_inference(args, model, test_dataset, dtype=torch.float32):
+    # Select CPU or GPU
+    device = utils.set_device(args)
+
+    return _test_inference(device, model, test_dataset, dtype)
+
+def _test_inference(device, model, test_dataset, dtype=torch.float32):
     """ Returns the test accuracy and loss.
     """
 
     model.eval()
     model.to(dtype)
     loss, total, correct = 0.0, 0.0, 0.0
-
-    # Select CPU or GPU
-    device = utils.set_device(args)
 
     criterion = nn.NLLLoss().to(device)
     # Set dtype for criterion
