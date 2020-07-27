@@ -45,6 +45,16 @@ def args_parser():
     parser.add_argument('-fp16', '--floating_point_16', action='store_true', default=False, \
                         help="use floating point 16 for model")
 
+    # differential privacy
+    parser.add_argument('-dp', '--differential_privacy', action='store_true', default=False, \
+                        help="use differential-privacy")
+    parser.add_argument('-s', '--sigma', type=float, default=1.0, \
+                        help="Noise multiplier (default 1.0)")
+    parser.add_argument('-c', '--clip_max_per_sample_grad_norm', type=float, default=1.0, \
+                        help='Clip per-sample gradients to this norm (default 1.0)')
+    parser.add_argument('--alphas', nargs='+', type=float, default=None,
+                        help='alpha orders for Renyi Differential Privacy')
+
     # other arguments
     parser.add_argument('--dataset', type=str, default='mnist', help="name \
                         of datasetS")
@@ -84,5 +94,12 @@ def args_parser():
 
     if args.floating_point_16 and not args.gpu:
         parser.error("floating_point_16 will only work on GPU (CUDA). Please specify --gpu and --gpu_id.")
+
+    # differential privacy
+
+    if args.alphas == None:
+        # FIXME: find good default value
+        # example: [1 + x / 10.0 for x in range(1, 100)] + list(range(12, 64))
+        args.alphas = []
 
     return args
