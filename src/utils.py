@@ -14,14 +14,16 @@ import update
 #from update import LocalUpdate, test_inference
 
 
-
 def get_dataset(args):
+    return _get_dataset(args.dataset, args.iid, args.unequal, args.num_users)
+
+def _get_dataset(dataset, iid, unequal, num_users):
     """ Returns train and test datasets and a user group which is a dict where
     the keys are the user index and the values are the corresponding data for
     each of those users.
     """
 
-    if args.dataset == 'cifar':
+    if dataset == 'cifar':
         data_dir = '../data/cifar/'
         apply_transform = transforms.Compose(
             [transforms.ToTensor(),
@@ -38,22 +40,22 @@ def get_dataset(args):
                                       transform=apply_transform)
 
         # sample training data amongst users
-        if args.iid:
+        if iid:
             # Sample IID user data from Mnist
             print("Dataset: CIFAR10 IID")
-            user_groups = cifar_iid(train_dataset, args.num_users)
+            user_groups = cifar_iid(train_dataset, num_users)
         else:
             # Sample Non-IID user data from Mnist
-            if args.unequal:
+            if unequal:
                 # Chose uneuqal splits for every user
                 raise NotImplementedError()
             else:
                 # Chose euqal splits for every user
                 print("Dataset: CIFAR10 equal Non-IID")
-                user_groups = cifar_noniid(train_dataset, args.num_users)
+                user_groups = cifar_noniid(train_dataset, num_users)
 
 
-    elif args.dataset == 'mnist':
+    elif dataset == 'mnist':
         data_dir = '../data/mnist/'
         apply_transform = transforms.Compose([
             transforms.ToTensor(),
@@ -66,23 +68,23 @@ def get_dataset(args):
                                       transform=apply_transform)
 
         # sample training data amongst users
-        if args.iid:
+        if iid:
             # Sample IID user data from Mnist
             print("Dataset: MNIST IID")
-            user_groups = mnist_iid(train_dataset, args.num_users)
+            user_groups = mnist_iid(train_dataset, num_users)
         else:
             # Sample Non-IID user data from Mnist
-            if args.unequal:
+            if unequal:
                 print("Dataset: MNIST unequal Non-IID")
                 # Chose uneuqal splits for every user
-                user_groups = mnist_noniid_unequal(train_dataset, args.num_users)
+                user_groups = mnist_noniid_unequal(train_dataset, num_users)
             else:
                 # Chose equal splits for every user
                 print("Dataset: MNIST equal Non-IID")
-                user_groups = mnist_noniid(train_dataset, args.num_users)
+                user_groups = mnist_noniid(train_dataset, num_users)
 
     else:
-        exit("No such dataset: " + args.dataset)
+        exit("No such dataset: " + dataset)
 
     return train_dataset, test_dataset, user_groups
 
