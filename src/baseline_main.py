@@ -10,7 +10,7 @@ import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from utils import get_dataset, set_device, build_model
+import utils
 from options import args_parser
 from update import test_inference
 
@@ -20,17 +20,17 @@ if __name__ == '__main__':
     start_time = time.time()
 
     # Select CPU or GPU
-    device = set_device(args)
+    device = utils.set_device(args)
 
     # load datasets
-    train_dataset, test_dataset, _ = get_dataset(args)
+    train_dataset, test_dataset, _ = utils.get_dataset(args)
 
     # BUILD MODEL
     # FXIME: was this a bug or intentional?
     if not args.floating_point_16:
         # mimics original behavior of baseline_main
         args.mlpdim=64
-    global_model = build_model(args, train_dataset)
+    global_model = utils.build_model(args, train_dataset)
 
     data_type = torch.float32
     appendage = ''
