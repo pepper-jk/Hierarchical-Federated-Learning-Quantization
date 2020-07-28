@@ -28,13 +28,31 @@ if __name__ == '__main__':
     args = options.args_parser()
     utils.exp_details(args)
 
+    # get cli arguments
+    floating_point_16 = args.floating_point_16
+    epochs = args.epochs
+    num_users = args.num_users
+
+    ## cluster arguments
+    Cepochs = args.Cepochs
+    num_clusters = args.num_clusters
+
+    ## for filesave
+    model = args.model
+    dataset = args.dataset
+    learning_rate = args.learning_rate
+    frac = args.frac
+    iid = args.iid
+    local_ep = args.local_ep
+    local_bs = args.local_bs
+
     # Select CPU or GPU
     device = device = utils.set_device(args)
 
     data_type = torch.float32
     appendage = ''
     # Set model to use Floating Point 16
-    if args.floating_point_16:
+    if floating_point_16:
         data_type = torch.float16
         appendage = '_FP16'
 
@@ -51,13 +69,13 @@ if __name__ == '__main__':
     keylist = list(user_groups.keys())
     print("keylist: ", keylist)
     # ======= Splitting into clusters. FL groups =======
-    cluster_size = int(args.num_users / args.num_clusters)
+    cluster_size = int(num_users / num_clusters)
     print("Each cluster size: ", cluster_size)
 
     keylists_per_cluster = []
     user_groups_per_cluster = []
 
-    for i in range(0, args.num_clusters):
+    for i in range(0, num_clusters):
         # Cluster i
         keylist_cluster = keylist[i*cluster_size:(i+1)*cluster_size]
         # TODO: make a cli argument cluster members random
@@ -86,7 +104,7 @@ if __name__ == '__main__':
     model_per_cluster = []
     weights_per_cluster = []
 
-    for i in range(0, args.num_clusters):
+    for i in range(0, num_clusters):
         # build model
         cluster_model = utils.build_model(args, train_dataset)
         cluster_model.to(device, dtype=data_type)
@@ -104,7 +122,7 @@ if __name__ == '__main__':
     val_loss_pre, counter = 0, 0
     testacc_check, epoch = 0, 0
 
-    for epoch in range(args.epochs):
+    for epoch in range(epochs):
         local_weights, local_losses, local_accuracies= [], [], []
         print(f'\n | Global Training Round : {epoch+1} |\n')
 
@@ -113,8 +131,8 @@ if __name__ == '__main__':
 
         # ===== Clusters =====
 
-        for i in range(0, args.num_clusters):
-            model, weights, losses = utils.fl_train(args, train_dataset, model_per_cluster[i], keylists_per_cluster[i], user_groups_per_cluster[i], args.Cepochs, logger, cluster_dtype=data_type)
+        for i in range(0, num_clusters):
+            cluster_model, weights, losses = utils.fl_train(args, train_dataset, model_per_cluster[i], keylists_per_cluster[i], user_groups_per_cluster[i], Cepochs, logger, cluster_dtype=data_type)
             local_weights.append(copy.deepcopy(weights))
             local_losses.append(copy.deepcopy(losses))
             model_per_cluster[i] = global_model# = model
@@ -132,7 +150,7 @@ if __name__ == '__main__':
         # Calculate avg training accuracy over all users at every epoch
         list_acc, list_loss = [], []
         global_model.eval()
-        for c in range(args.num_users):
+        for c in range(num_users):
             local_model = update.LocalUpdate(args=args, dataset=train_dataset,
                                       idxs=user_groups[c], logger=logger)
             acc, loss = local_model.inference(model=global_model, dtype=data_type)
@@ -155,15 +173,15 @@ if __name__ == '__main__':
     # Test inference after completion of training
     test_acc, test_loss = update.test_inference(args, global_model, test_dataset, dtype=data_type)
 
-    # print(f' \n Results after {args.epochs} global rounds of training:')
+    # print(f' \n Results after {epochs} global rounds of training:')
     print(f"\nAvg Training Stats after {epoch} global rounds:")
     print("|---- Avg Train Accuracy: {:.2f}%".format(100*train_accuracy[-1]))
     print("|---- Test Accuracy: {:.2f}%".format(100*test_acc))
 
     # Saving the objects train_loss and train_accuracy:
     file_name = '../save/objects{}/HFL2_{}_{}_{}_lr[{}]_C[{}]_iid[{}]_E[{}]_B[{}]{}.pkl'.\
-    format(appendage.lower(), args.dataset, args.model, epoch, args.learning_rate, args.frac,
-           args.iid, args.local_ep, args.local_bs, appendage)
+    format(appendage.lower(), dataset, model, epoch, learning_rate, frac,
+           iid, local_ep, local_bs, appendage)
 
     with open(file_name, 'wb') as f:
         pickle.dump([train_loss, train_accuracy], f)
