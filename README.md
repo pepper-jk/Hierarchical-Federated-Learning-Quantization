@@ -14,7 +14,7 @@ Install all the packages from requirements.txt
 * Numpy==1.15.4
 * Tensorboardx==1.4
 * Matplotlib==3.0.1
-* Tqdm==4.39.0 
+* Tqdm==4.39.0
 
 ## Steps to setting up a Python environment
 1. Creating environment:
@@ -55,7 +55,7 @@ python federated_main.py --local_ep=1 --local_bs=10 --frac=0.1 --model=mlp --dat
 ```
 -----
 
-Hierarchical federated experiment involves training a global model using many local models. 
+Hierarchical federated experiment involves training a global model using many local models.
 
 * To run the hierarchical federated experiment with 2 clusters on MNIST using CNN (IID):
 ```
@@ -70,7 +70,7 @@ Hierarchical Federated experiments involve training a global model using differe
 
 * To run the hierarchical federated experiment with 2 clusters on CIFAR using CNN (IID):
 ```
-python ./federated-hierarchical2_main_fp16.py --local_ep=5 --local_bs=50 --frac=0.1 --Cepochs=10 --model=cnn --dataset=cifar --iid=1 --num_cluster=2 --gpu=1 --lr=0.01 --epochs=100 
+python ./federated-hierarchical2_main_fp16.py --local_ep=5 --local_bs=50 --frac=0.1 --Cepochs=10 --model=cnn --dataset=cifar --iid=1 --num_cluster=2 --gpu=1 --lr=0.01 --epochs=100
 ```
 
 
@@ -97,7 +97,7 @@ The default values for various paramters parsed to the experiment are given in `
 * ```--num_clusters:```  Number of clusters in the hierarchy.
 * ```--Cepochs:```  Number of rounds of training in each cluster.
 
-## Experimental Results 
+## Experimental Results
 The results and figures can be found in [evaluation notebooks](/src/)
 * Eval.ipynb
 * Eval_fp16.ipynb
