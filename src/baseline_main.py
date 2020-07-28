@@ -50,19 +50,19 @@ if __name__ == '__main__':
     # Training
     # Set optimizer and criterion
     if args.optimizer == 'sgd':
-        optimizer = torch.optim.SGD(global_model.parameters(), lr=args.lr,
+        optimizer = torch.optim.SGD(global_model.parameters(), lr=args.learning_rate,
                                     momentum=0.5)
     elif args.optimizer == 'adam':
-        optimizer = torch.optim.Adam(global_model.parameters(), lr=args.lr,
+        optimizer = torch.optim.Adam(global_model.parameters(), lr=args.learning_rate,
                                      weight_decay=1e-4)
     elif args.optimizer == 'adagrad':
-        optimizer = torch.optim.Adagrad(global_model.parameters(), lr=args.lr,
+        optimizer = torch.optim.Adagrad(global_model.parameters(), lr=args.learning_rate,
                                      weight_decay=1e-4)
     elif args.optimizer == 'adamax':
-        optimizer = torch.optim.Adamax(global_model.parameters(), lr=args.lr,
+        optimizer = torch.optim.Adamax(global_model.parameters(), lr=args.learning_rate,
                                      weight_decay=1e-4)
     elif args.optimizer == 'rmsprop':
-        optimizer = torch.optim.RMSprop(global_model.parameters(), lr=args.lr,
+        optimizer = torch.optim.RMSprop(global_model.parameters(), lr=args.learning_rate,
                                      weight_decay=1e-4)
     else:
         exit('Error- unrecognized optimizer: ' + args.optimizer)
@@ -103,7 +103,7 @@ if __name__ == '__main__':
 
     # Saving the objects train_loss, test_acc, test_loss:
     file_name = '../save/objects{}/BaseSGD_{}_{}_epoch[{}]_lr[{}]_iid[{}]{}.pkl'.\
-        format(appendage.lower(), args.dataset, args.model, epoch, args.lr, args.iid, appendage)
+        format(appendage.lower(), args.dataset, args.model, epoch, args.learning_rate, args.iid, appendage)
 
     with open(file_name, 'wb') as f:
         pickle.dump([epoch_loss, test_acc, test_loss], f)

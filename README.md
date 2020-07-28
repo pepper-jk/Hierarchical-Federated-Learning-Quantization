@@ -47,11 +47,11 @@ The baseline experiment trains the model in the conventional federated learning.
 
 * To run the baseline federated experiment with MNIST on MLP using CPU:
 ```
-python federated_main.py --local_ep=1 --local_bs=10 --frac=0.1 --model=mlp --dataset=mnist --iid=1 --lr=0.01 --test_acc=95 --mlpdim=200 --epochs=600
+python federated_main.py --local_ep=1 --local_bs=10 --frac=0.1 --model=mlp --dataset=mnist --iid=1 --learning_rate=0.01 --test_acc=95 --mlpdim=200 --epochs=600
 ```
 * Or to run it on GPU (eg: if gpu:0 is available):
 ```
-python federated_main.py --local_ep=1 --local_bs=10 --frac=0.1 --model=mlp --dataset=mnist --iid=1 --gpu --lr=0.01 --test_acc=95 --mlpdim=200 --epochs=600
+python federated_main.py --local_ep=1 --local_bs=10 --frac=0.1 --model=mlp --dataset=mnist --iid=1 --gpu --learning_rate=0.01 --test_acc=95 --mlpdim=200 --epochs=600
 ```
 -----
 
@@ -59,18 +59,18 @@ Hierarchical federated experiment involves training a global model using many lo
 
 * To run the hierarchical federated experiment with 2 clusters on MNIST using CNN (IID):
 ```
-python federated-hierarchical_main.py --local_ep=1 --local_bs=10 --frac=0.1 --Cepochs=10 --model=cnn --dataset=mnist --iid=1 --num_cluster=2 --gpu --lr=0.01 --epochs=100
+python federated-hierarchical_main.py --local_ep=1 --local_bs=10 --frac=0.1 --Cepochs=10 --model=cnn --dataset=mnist --iid=1 --num_cluster=2 --gpu --learning_rate=0.01 --epochs=100
 ```
 * To run the same experiment under non-IID condition:
 ```
-python federated-hierarchical_main.py --local_ep=1 --local_bs=10 --frac=0.1 --Cepochs=10 --model=cnn --dataset=mnist --iid=0 --num_cluster=2 --gpu --lr=0.01 --epochs=100
+python federated-hierarchical_main.py --local_ep=1 --local_bs=10 --frac=0.1 --Cepochs=10 --model=cnn --dataset=mnist --iid=0 --num_cluster=2 --gpu --learning_rate=0.01 --epochs=100
 ```
 -----
 Hierarchical Federated experiments involve training a global model using different clusters with many local models (16-bit).
 
 * To run the hierarchical federated experiment with 2 clusters on CIFAR using CNN (IID):
 ```
-python ./federated-hierarchical_main.py --floating_point_16 --local_ep=5 --local_bs=50 --frac=0.1 --Cepochs=10 --model=cnn --dataset=cifar --iid=1 --num_cluster=2 --gpu --lr=0.01 --epochs=100
+python ./federated-hierarchical_main.py --floating_point_16 --local_ep=5 --local_bs=50 --frac=0.1 --Cepochs=10 --model=cnn --dataset=cifar --iid=1 --num_cluster=2 --gpu --learning_rate=0.01 --epochs=100
 ```
 
 
@@ -84,7 +84,7 @@ The default values for various paramters parsed to the experiment are given in `
 * ```--gpu:```      Default: False. Set to use cuda.
 * ```--gpu_id:```	Default: 'cuda:0' (this specifies which GPU to use)
 * ```--epochs:```   Number of rounds of training.
-* ```--lr:```       Learning rate set to 0.01 by default.
+* ```-lr, --learning_rate:``` Learning rate set to 0.01 by default.
 * ```--verbose:```  Detailed log outputs. Activated by default, set to 0 to deactivate.
 * ```--seed:```     Random Seed. Default set to 1.
 

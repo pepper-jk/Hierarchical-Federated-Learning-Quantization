@@ -27,7 +27,7 @@ class DatasetSplit(Dataset):
 class LocalUpdate(object):
     def __init__(self, args, dataset, idxs, logger):
         self.optimizer = args.optimizer
-        self.lr = args.lr
+        self.lr = args.learning_rate
         self.local_ep = args.local_ep
         self.local_bs = args.local_bs
         self.logger = logger

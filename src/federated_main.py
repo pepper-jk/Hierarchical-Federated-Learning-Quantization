@@ -130,7 +130,7 @@ if __name__ == '__main__':
 
     # Saving the objects train_loss and train_accuracy:
     file_name = '../save/objects{}/FL_{}_{}_{}_lr[{}]_C[{}]_iid[{}]_E[{}]_B[{}]{}.pkl'.\
-        format(appendage.lower(), args.dataset, args.model, epoch, args.lr, args.frac,
+        format(appendage.lower(), args.dataset, args.model, epoch, args.learning_rate, args.frac,
                args.iid, args.local_ep, args.local_bs, appendage)
 
     with open(file_name, 'wb') as f:
