@@ -16,7 +16,7 @@ from tqdm import tqdm
 from options import args_parser
 from update import LocalUpdate, test_inference
 from models import MLP, CNNMnist, CNNFashion_Mnist, CNNCifar
-from utils import get_dataset, average_weights, exp_details, set_device, build_model, fl_train
+import utils
 
 
 if __name__ == '__main__':
@@ -27,10 +27,10 @@ if __name__ == '__main__':
     logger = tensorboardX.SummaryWriter('../logs')
 
     args = args_parser()
-    exp_details(args)
+    utils.exp_details(args)
 
     # Select CPU or GPU
-    device = set_device(args)
+    device = device = utils.set_device(args)
 
     data_type = torch.float32
     appendage = ''
@@ -40,7 +40,7 @@ if __name__ == '__main__':
         appendage = '_FP16'
 
     # load dataset and user groups
-    train_dataset, test_dataset, user_groupsold = get_dataset(args)
+    train_dataset, test_dataset, user_groupsold = utils.get_dataset(args)
 
     # ======= Shuffle dataset =======
     keys =  list(user_groupsold.keys())
@@ -71,7 +71,7 @@ if __name__ == '__main__':
         print("Size of cluster {}: ".format(i), len(user_groups_cluster))
 
     # MODEL PARAM SUMMARY
-    global_model = build_model(args, train_dataset)
+    global_model = utils.build_model(args, train_dataset)
     pytorch_total_params = sum(p.numel() for p in global_model.parameters())
     print("Model total number of parameters: ", pytorch_total_params)
 
@@ -89,7 +89,7 @@ if __name__ == '__main__':
 
     for i in range(0, args.num_clusters):
         # build model
-        cluster_model = build_model(args, train_dataset)
+        cluster_model = utils.build_model(args, train_dataset)
         cluster_model.to(device, dtype=data_type)
         cluster_model.train()
         # copy weights
@@ -115,13 +115,13 @@ if __name__ == '__main__':
         # ===== Clusters =====
 
         for i in range(0, args.num_clusters):
-            model, weights, losses = fl_train(args, train_dataset, model_per_cluster[i], keylists_per_cluster[i], user_groups_per_cluster[i], args.Cepochs, logger, cluster_dtype=data_type)
+            model, weights, losses = utils.fl_train(args, train_dataset, model_per_cluster[i], keylists_per_cluster[i], user_groups_per_cluster[i], args.Cepochs, logger, cluster_dtype=data_type)
             local_weights.append(copy.deepcopy(weights))
             local_losses.append(copy.deepcopy(losses))
             model_per_cluster[i] = global_model# = model
 
         # averaging global weights
-        global_weights = average_weights(local_weights)
+        global_weights = utils.average_weights(local_weights)
 
         # update global weights
         global_model.load_state_dict(global_weights)
