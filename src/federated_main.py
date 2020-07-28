@@ -14,7 +14,7 @@ from tqdm import tqdm
 from options import args_parser
 from update import LocalUpdate, test_inference
 from models import MLP, CNNMnist, CNNFashion_Mnist, CNNCifar
-from utils import get_dataset, average_weights, exp_details, set_device, build_model
+import utils
 
 
 if __name__ == '__main__':
@@ -25,16 +25,16 @@ if __name__ == '__main__':
     logger = tensorboardX.SummaryWriter('../logs')
 
     args = args_parser()
-    exp_details(args)
+    utils.exp_details(args)
 
     # Select CPU or GPU
-    device = set_device(args)
+    device = utils.set_device(args)
 
     # load dataset and user groups
-    train_dataset, test_dataset, user_groups = get_dataset(args)
+    train_dataset, test_dataset, user_groups = utils.get_dataset(args)
 
     # BUILD MODEL
-    global_model = build_model(args, train_dataset)
+    global_model = utils.build_model(args, train_dataset)
 
     data_type = torch.float32
     appendage = ''
@@ -88,7 +88,7 @@ if __name__ == '__main__':
             local_losses.append(copy.deepcopy(loss))
 
         # Averaging m local client weights
-        global_weights = average_weights(local_weights)
+        global_weights = utils.average_weights(local_weights)
 
         # update global weights
         global_model.load_state_dict(global_weights)
