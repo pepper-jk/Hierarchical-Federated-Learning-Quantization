@@ -22,20 +22,34 @@ if __name__ == '__main__':
     # Select CPU or GPU
     device = utils.set_device(args)
 
+    # get cli arguments
+    floating_point_16 = args.floating_point_16
+    epochs = args.epochs
+    optimizer = args.optimizer
+
+    ## for filesave
+    model = args.model
+    dataset = args.dataset
+    learning_rate = args.learning_rate
+    iid = args.iid
+
+    ## plots
+    plot = args.plot
+
     # load datasets
     train_dataset, test_dataset, _ = utils.get_dataset(args)
 
     # BUILD MODEL
     # FXIME: was this a bug or intentional?
-    if not args.floating_point_16:
+    if not floating_point_16:
         # mimics original behavior of baseline_main
-        args.mlpdim=64
+        mlpdim=64
     global_model = utils.build_model(args, train_dataset)
 
     data_type = torch.float32
     appendage = ''
     # Set model to use Floating Point 16
-    if args.floating_point_16:
+    if floating_point_16:
         data_type = torch.float16
         appendage = '_FP16'
 
@@ -46,30 +60,30 @@ if __name__ == '__main__':
 
     # Training
     # Set optimizer and criterion
-    if args.optimizer == 'sgd':
-        optimizer = torch.optim.SGD(global_model.parameters(), lr=args.learning_rate,
+    if optimizer == 'sgd':
+        optimizer = torch.optim.SGD(global_model.parameters(), lr=learning_rate,
                                     momentum=0.5)
-    elif args.optimizer == 'adam':
-        optimizer = torch.optim.Adam(global_model.parameters(), lr=args.learning_rate,
+    elif optimizer == 'adam':
+        optimizer = torch.optim.Adam(global_model.parameters(), lr=learning_rate,
                                      weight_decay=1e-4)
-    elif args.optimizer == 'adagrad':
-        optimizer = torch.optim.Adagrad(global_model.parameters(), lr=args.learning_rate,
+    elif optimizer == 'adagrad':
+        optimizer = torch.optim.Adagrad(global_model.parameters(), lr=learning_rate,
                                      weight_decay=1e-4)
-    elif args.optimizer == 'adamax':
-        optimizer = torch.optim.Adamax(global_model.parameters(), lr=args.learning_rate,
+    elif optimizer == 'adamax':
+        optimizer = torch.optim.Adamax(global_model.parameters(), lr=learning_rate,
                                      weight_decay=1e-4)
-    elif args.optimizer == 'rmsprop':
-        optimizer = torch.optim.RMSprop(global_model.parameters(), lr=args.learning_rate,
+    elif optimizer == 'rmsprop':
+        optimizer = torch.optim.RMSprop(global_model.parameters(), lr=learning_rate,
                                      weight_decay=1e-4)
     else:
-        sys.exit('Error- unrecognized optimizer: ' + args.optimizer)
+        sys.exit('Error- unrecognized optimizer: ' + optimizer)
 
     trainloader = DataLoader(train_dataset, batch_size=64, shuffle=True)
     criterion = torch.nn.NLLLoss().to(device, dtype=data_type)
 
     epoch_loss = []
 
-    for epoch in tqdm(range(args.epochs)):
+    for epoch in tqdm(range(epochs)):
         batch_loss = []
 
         for batch_idx, (images, labels) in enumerate(trainloader):
@@ -100,7 +114,7 @@ if __name__ == '__main__':
 
     # Saving the objects train_loss, test_acc, test_loss:
     file_name = '../save/objects{}/BaseSGD_{}_{}_epoch[{}]_lr[{}]_iid[{}]{}.pkl'.\
-        format(appendage.lower(), args.dataset, args.model, epoch, args.learning_rate, args.iid, appendage)
+        format(appendage.lower(), dataset, model, epoch, learning_rate, iid, appendage)
 
     with open(file_name, 'wb') as f:
         pickle.dump([epoch_loss, test_acc, test_loss], f)
@@ -108,10 +122,10 @@ if __name__ == '__main__':
     print('\n Total Run Time: {0:0.4f}'.format(time.time()-start_time))
 
     # Plot loss
-    if args.plot:
+    if plot:
         plt.figure()
         plt.plot(range(len(epoch_loss)), epoch_loss)
         plt.xlabel('epochs')
         plt.ylabel('Train loss')
-        plt.savefig('../save/nn_{}_{}_{}.png'.format(args.dataset, args.model,
-                                                    args.epochs))
+        plt.savefig('../save/nn_{}_{}_{}.png'.format(dataset, model,
+                                                    epochs))
