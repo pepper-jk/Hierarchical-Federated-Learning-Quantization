@@ -26,6 +26,23 @@ if __name__ == '__main__':
     args = options.args_parser()
     utils.exp_details(args)
 
+    # get cli arguments
+    floating_point_16 = args.floating_point_16
+    epochs = args.epochs
+    num_users = args.num_users
+
+    ## for filesave
+    model = args.model
+    dataset = args.dataset
+    learning_rate = args.learning_rate
+    frac = args.frac
+    iid = args.iid
+    local_ep = args.local_ep
+    local_bs = args.local_bs
+
+    ## plots
+    plot = args.plot
+
     # Select CPU or GPU
     device = utils.set_device(args)
 
@@ -38,7 +55,7 @@ if __name__ == '__main__':
     data_type = torch.float32
     appendage = ''
     # Set model to use Floating Point 16
-    if args.floating_point_16:
+    if floating_point_16:
         data_type = torch.float16
         appendage = '_FP16'
 
@@ -63,7 +80,7 @@ if __name__ == '__main__':
     testacc_check, epoch = 0, 0
 
     # global training epochs
-    for epoch in range(args.epochs):
+    for epoch in range(epochs):
         local_weights, local_losses = [], [] # init empty local weights and local losses
         print(f'\n | Global Training Round : {epoch+1} |\n') # starting with | Global Training Round : 1 |
 
@@ -74,8 +91,8 @@ if __name__ == '__main__':
         """
         # ============== TRAIN ==============
         global_model.train()
-        m = max(int(args.frac * args.num_users), 1) # C = args.frac. Setting number of clients m for training
-        idxs_users = np.random.choice(range(args.num_users), m, replace=False) # args.num_users=100 total clients. Choosing a random array of indices. Subset of clients.
+        m = max(int(frac * num_users), 1) # C = frac. Setting number of clients m for training
+        idxs_users = np.random.choice(range(num_users), m, replace=False) # num_users=100 total clients. Choosing a random array of indices. Subset of clients.
 
         for idx in idxs_users: # For each client in the subset.
             local_model = update.LocalUpdate(args=args, dataset=train_dataset,
@@ -100,7 +117,7 @@ if __name__ == '__main__':
         list_acc, list_loss = [], []
         global_model.eval() # must set your model into evaluation mode when computing model output values if dropout or bach norm used for training.
 
-        for c in range(args.num_users): # 0 to 99
+        for c in range(num_users): # 0 to 99
             local_model = update.LocalUpdate(args=args, dataset=train_dataset,
                                       idxs=user_groups[c], logger=logger)
             acc, loss = local_model.inference(model=global_model, dtype=data_type)
@@ -127,8 +144,8 @@ if __name__ == '__main__':
 
     # Saving the objects train_loss and train_accuracy:
     file_name = '../save/objects{}/FL_{}_{}_{}_lr[{}]_C[{}]_iid[{}]_E[{}]_B[{}]{}.pkl'.\
-        format(appendage.lower(), args.dataset, args.model, epoch, args.learning_rate, args.frac,
-               args.iid, args.local_ep, args.local_bs, appendage)
+        format(appendage.lower(), dataset, model, epoch, learning_rate, frac,
+               iid, local_ep, local_bs, appendage)
 
     with open(file_name, 'wb') as f:
         pickle.dump([train_loss, train_accuracy], f)
@@ -136,7 +153,7 @@ if __name__ == '__main__':
     print('\n Total Run Time: {0:0.4f}'.format(time.time()-start_time))
 
     # PLOTTING (optional)
-    if args.plot:
+    if plot:
         import matplotlib
         import matplotlib.pyplot as plt
         matplotlib.use('Agg')
@@ -148,8 +165,8 @@ if __name__ == '__main__':
         plt.ylabel('Training loss')
         plt.xlabel('Communication Rounds')
         plt.savefig('../save/fed_{}_{}_{}_C[{}]_iid[{}]_E[{}]_B[{}]_loss.png'.
-                    format(args.dataset, args.model, args.epochs, args.frac,
-                        args.iid, args.local_ep, args.local_bs))
+                    format(dataset, model, epochs, frac,
+                        iid, local_ep, local_bs))
 
         # Plot Average Accuracy vs Communication rounds
         plt.figure()
@@ -158,5 +175,5 @@ if __name__ == '__main__':
         plt.ylabel('Average Accuracy')
         plt.xlabel('Communication Rounds')
         plt.savefig('../save/fed_{}_{}_{}_C[{}]_iid[{}]_E[{}]_B[{}]_acc.png'.
-                    format(args.dataset, args.model, args.epochs, args.frac,
-                        args.iid, args.local_ep, args.local_bs))
+                    format(dataset, model, epochs, frac,
+                        iid, local_ep, local_bs))
