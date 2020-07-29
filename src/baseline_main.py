@@ -11,12 +11,12 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 import utils
-from options import args_parser
-from update import test_inference
+import options
+import update
 
 
 if __name__ == '__main__':
-    args = args_parser()
+    args = options.args_parser()
     start_time = time.time()
 
     # Select CPU or GPU
@@ -93,7 +93,7 @@ if __name__ == '__main__':
 
 
     # testing
-    test_acc, test_loss = test_inference(args, global_model, test_dataset, dtype=data_type)
+    test_acc, test_loss = update.test_inference(args, global_model, test_dataset, dtype=data_type)
     print('Test on', len(test_dataset), 'samples')
     print("Test Accuracy: {:.2f}%".format(100*test_acc))
 
