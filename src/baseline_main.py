@@ -2,21 +2,18 @@
 # -*- coding: utf-8 -*-
 # Python version: 3.6
 
-
-from tqdm import tqdm
 import matplotlib.pyplot as plt
-
+import pickle
+import sys
+import time
 import torch
 from torch.utils.data import DataLoader
+from tqdm import tqdm
 
 from utils import get_dataset, set_device, build_model
 from options import args_parser
 from update import test_inference
-from models import MLP, CNNMnist, CNNFashion_Mnist, CNNCifar
-import pickle
-import time
 
-from sys import exit
 
 if __name__ == '__main__':
     args = args_parser()
@@ -65,7 +62,7 @@ if __name__ == '__main__':
         optimizer = torch.optim.RMSprop(global_model.parameters(), lr=args.learning_rate,
                                      weight_decay=1e-4)
     else:
-        exit('Error- unrecognized optimizer: ' + args.optimizer)
+        sys.exit('Error- unrecognized optimizer: ' + args.optimizer)
 
     trainloader = DataLoader(train_dataset, batch_size=64, shuffle=True)
     criterion = torch.nn.NLLLoss().to(device, dtype=data_type)
