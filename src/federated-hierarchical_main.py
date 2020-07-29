@@ -13,9 +13,8 @@ import time
 import torch
 from tqdm import tqdm
 
-from options import args_parser
-from update import LocalUpdate, test_inference
-from models import MLP, CNNMnist, CNNFashion_Mnist, CNNCifar
+import options
+import update
 import utils
 
 
@@ -26,7 +25,7 @@ if __name__ == '__main__':
     path_project = os.path.abspath('..')
     logger = tensorboardX.SummaryWriter('../logs')
 
-    args = args_parser()
+    args = options.args_parser()
     utils.exp_details(args)
 
     # Select CPU or GPU
@@ -134,7 +133,7 @@ if __name__ == '__main__':
         list_acc, list_loss = [], []
         global_model.eval()
         for c in range(args.num_users):
-            local_model = LocalUpdate(args=args, dataset=train_dataset,
+            local_model = update.LocalUpdate(args=args, dataset=train_dataset,
                                       idxs=user_groups[c], logger=logger)
             acc, loss = local_model.inference(model=global_model, dtype=data_type)
             list_acc.append(acc)
@@ -154,7 +153,7 @@ if __name__ == '__main__':
     print('\n Total Run Time: {0:0.4f}'.format(time.time()-start_time))
 
     # Test inference after completion of training
-    test_acc, test_loss = test_inference(args, global_model, test_dataset, dtype=data_type)
+    test_acc, test_loss = update.test_inference(args, global_model, test_dataset, dtype=data_type)
 
     # print(f' \n Results after {args.epochs} global rounds of training:')
     print(f"\nAvg Training Stats after {epoch} global rounds:")
