@@ -11,9 +11,8 @@ import time
 import torch
 from tqdm import tqdm
 
-from options import args_parser
-from update import LocalUpdate, test_inference
-from models import MLP, CNNMnist, CNNFashion_Mnist, CNNCifar
+import options
+import update
 import utils
 
 
@@ -24,7 +23,7 @@ if __name__ == '__main__':
     path_project = os.path.abspath('..')
     logger = tensorboardX.SummaryWriter('../logs')
 
-    args = args_parser()
+    args = options.args_parser()
     utils.exp_details(args)
 
     # Select CPU or GPU
@@ -79,7 +78,7 @@ if __name__ == '__main__':
         idxs_users = np.random.choice(range(args.num_users), m, replace=False) # args.num_users=100 total clients. Choosing a random array of indices. Subset of clients.
 
         for idx in idxs_users: # For each client in the subset.
-            local_model = LocalUpdate(args=args, dataset=train_dataset,
+            local_model = update.LocalUpdate(args=args, dataset=train_dataset,
                                       idxs=user_groups[idx], logger=logger)
             w, loss = local_model.update_weights( # update_weights() contain multiple prints
                 model=copy.deepcopy(global_model), global_round=epoch, dtype=data_type)
@@ -102,7 +101,7 @@ if __name__ == '__main__':
         global_model.eval() # must set your model into evaluation mode when computing model output values if dropout or bach norm used for training.
 
         for c in range(args.num_users): # 0 to 99
-            local_model = LocalUpdate(args=args, dataset=train_dataset,
+            local_model = update.LocalUpdate(args=args, dataset=train_dataset,
                                       idxs=user_groups[c], logger=logger)
             acc, loss = local_model.inference(model=global_model, dtype=data_type)
             list_acc.append(acc)
@@ -120,7 +119,7 @@ if __name__ == '__main__':
             print('Train Accuracy: {:.2f}% \n'.format(100*train_accuracy[-1]))
 
     # Test inference after completion of training
-    test_acc, test_loss = test_inference(args, global_model, test_dataset, dtype=data_type)
+    test_acc, test_loss = update.test_inference(args, global_model, test_dataset, dtype=data_type)
 
     print(f' \n Results after {epoch} global rounds of training:')
     print("|---- Avg Train Accuracy: {:.2f}%".format(100*train_accuracy[-1]))
