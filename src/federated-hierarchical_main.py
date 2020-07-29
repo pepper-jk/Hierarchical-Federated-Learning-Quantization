@@ -4,20 +4,19 @@
 
 import os
 import copy
-import time
-import pickle
+import math
 import numpy as np
-from tqdm import tqdm
-
+import pickle
+import random
+import tensorboardX
+import time
 import torch
-from tensorboardX import SummaryWriter
+from tqdm import tqdm
 
 from options import args_parser
 from update import LocalUpdate, test_inference
 from models import MLP, CNNMnist, CNNFashion_Mnist, CNNCifar
 from utils import get_dataset, average_weights, exp_details, set_device, build_model, fl_train
-import math
-import random
 
 
 if __name__ == '__main__':
@@ -25,7 +24,7 @@ if __name__ == '__main__':
 
     # define paths
     path_project = os.path.abspath('..')
-    logger = SummaryWriter('../logs')
+    logger = tensorboardX.SummaryWriter('../logs')
 
     args = args_parser()
     exp_details(args)
