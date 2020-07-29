@@ -2,16 +2,14 @@
 # -*- coding: utf-8 -*-
 # Python version: 3.6
 
-
-import os
 import copy
-import time
-import pickle
 import numpy as np
-from tqdm import tqdm
-
+import os
+import pickle
+import tensorboardX
+import time
 import torch
-from tensorboardX import SummaryWriter
+from tqdm import tqdm
 
 from options import args_parser
 from update import LocalUpdate, test_inference
@@ -24,7 +22,7 @@ if __name__ == '__main__':
 
     # define paths
     path_project = os.path.abspath('..')
-    logger = SummaryWriter('../logs')
+    logger = tensorboardX.SummaryWriter('../logs')
 
     args = args_parser()
     exp_details(args)
