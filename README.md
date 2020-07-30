@@ -1,5 +1,14 @@
 Please note the rules in [Contributing](/Contributing.md).
 
+# Research repository
+This repository is based on the [Hierarchical-Federated-Learning-Quantization](https://github.com/wesleyjtann/Hierarchical-Federated-Learning-Quantization).
+
+However the original code has undergone some serious **refactoring** in [our fork](https://github.com/pepper-jk/Hierarchical-Federated-Learning-Quantization) over on github before being used here.
+
+This repo will be used for research regarding federated learning (FL), hierarchical federated learning (HFL) and differential privacy (DP) in combination with the former two.
+
+The following is the original README, which is semantically unaltered and has only seen minor refactoring due to cli argument refactoring.
+
 # Hierarchical Federated-Learning (PyTorch)
 
 Implementation of both hierarchical and vanilla federated learning based on the paper : [Communication-Efficient Learning of Deep Networks from Decentralized Data](https://arxiv.org/abs/1602.05629).
