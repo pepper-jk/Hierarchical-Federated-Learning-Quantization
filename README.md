@@ -1,3 +1,5 @@
+Please note the rules in [Contributing](/Contributing.md).
+
 # Hierarchical Federated-Learning (PyTorch)
 
 Implementation of both hierarchical and vanilla federated learning based on the paper : [Communication-Efficient Learning of Deep Networks from Decentralized Data](https://arxiv.org/abs/1602.05629).
