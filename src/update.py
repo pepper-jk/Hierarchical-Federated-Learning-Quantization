@@ -2,11 +2,12 @@
 # -*- coding: utf-8 -*-
 # Python version: 3.6
 
+import sys
 import torch
-from torch import nn
+
 from torch.utils.data import DataLoader, Dataset
+
 import utils
-#from utils import set_device
 
 
 class DatasetSplit(Dataset):
@@ -37,7 +38,7 @@ class LocalUpdate(object):
         # Select CPU or GPU
         self.device = utils.set_device(args)
         # Default criterion set to NLL loss function
-        self.criterion = nn.NLLLoss().to(self.device)
+        self.criterion = torch.nn.NLLLoss().to(self.device)
 
     def train_val_test(self, dataset, idxs):
         """
@@ -138,7 +139,7 @@ def _test_inference(device, model, test_dataset, dtype=torch.float32):
     model.to(dtype)
     loss, total, correct = 0.0, 0.0, 0.0
 
-    criterion = nn.NLLLoss().to(device)
+    criterion = torch.nn.NLLLoss().to(device)
     # Set dtype for criterion
     criterion.to(dtype)
 
