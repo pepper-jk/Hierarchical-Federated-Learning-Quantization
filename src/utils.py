@@ -3,15 +3,17 @@
 # Python version: 3.6
 
 import copy
-import torch
 import numpy as np
-from sys import exit
+import torch
+import sys
+
 from torchvision import datasets, transforms
+
+import update
+
+from models import MLP, CNNMnist, CNNFashion_Mnist, CNNCifar
 from sampling import mnist_iid, mnist_noniid, mnist_noniid_unequal
 from sampling import cifar_iid, cifar_noniid
-from models import MLP, CNNMnist, CNNFashion_Mnist, CNNCifar
-import update
-#from update import LocalUpdate, test_inference
 
 
 def get_dataset(args):
@@ -84,7 +86,7 @@ def _get_dataset(dataset, iid, unequal, num_users):
                 user_groups = mnist_noniid(train_dataset, num_users)
 
     else:
-        exit("No such dataset: " + dataset)
+        sys.exit("No such dataset: " + dataset)
 
     return train_dataset, test_dataset, user_groups
 
@@ -155,7 +157,7 @@ def _build_model(model, dataset, mlpdim, num_classes, num_channels, train_datase
         model = MLP(dim_in=len_in, dim_hidden=mlpdim,
                                dim_out=num_classes)
     else:
-        exit('Error- unrecognized model: ' + model)
+        sys.exit('Error- unrecognized model: ' + model)
 
     return model
 
