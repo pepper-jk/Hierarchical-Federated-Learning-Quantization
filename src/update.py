@@ -72,6 +72,17 @@ class LocalUpdate(object):
         elif self.optimizer == 'adam':
             optimizer = torch.optim.Adam(model.parameters(), lr=self.lr,
                                          weight_decay=1e-4)
+        elif optimizer == 'adagrad':
+            optimizer = torch.optim.Adagrad(model.parameters(), lr=self.lr,
+                                        weight_decay=1e-4)
+        elif optimizer == 'adamax':
+            optimizer = torch.optim.Adamax(model.parameters(), lr=self.lr,
+                                        weight_decay=1e-4)
+        elif optimizer == 'rmsprop':
+            optimizer = torch.optim.RMSprop(model.parameters(), lr=self.lr,
+                                        weight_decay=1e-4)
+        else:
+            sys.exit('Error- unrecognized optimizer: ' + optimizer)
 
         for iter in range(self.local_ep):
             batch_loss = []
