@@ -40,10 +40,6 @@ if __name__ == '__main__':
     train_dataset, test_dataset, _ = utils.get_dataset(args)
 
     # BUILD MODEL
-    # FXIME: was this a bug or intentional?
-    if not floating_point_16:
-        # mimics original behavior of baseline_main
-        mlpdim=64
     global_model = utils.build_model(args, train_dataset)
 
     data_type = torch.float32
