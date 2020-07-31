@@ -46,6 +46,9 @@ if __name__ == '__main__':
     local_ep = args.local_ep
     local_bs = args.local_bs
 
+    ## plots
+    plot = args.plot
+
     # Select CPU or GPU
     device = device = utils.set_device(args)
 
@@ -187,3 +190,29 @@ if __name__ == '__main__':
         pickle.dump([train_loss, train_accuracy], f)
 
     print('\n Total Run Time: {0:0.4f}'.format(time.time()-start_time))
+
+    # PLOTTING (optional)
+    if plot:
+        import matplotlib
+        import matplotlib.pyplot as plt
+        matplotlib.use('Agg')
+
+        # Plot Loss curve
+        plt.figure()
+        plt.title('Training Loss vs Communication rounds')
+        plt.plot(range(len(train_loss)), train_loss, color='r')
+        plt.ylabel('Training loss')
+        plt.xlabel('Communication Rounds')
+        plt.savefig('../save/fed_hier_{}_{}_{}_C[{}]_iid[{}]_E[{}]_B[{}]_loss.png'.
+                    format(dataset, model, epochs, frac,
+                        iid, local_ep, local_bs))
+
+        # Plot Average Accuracy vs Communication rounds
+        plt.figure()
+        plt.title('Average Accuracy vs Communication rounds')
+        plt.plot(range(len(train_accuracy)), train_accuracy, color='k')
+        plt.ylabel('Average Accuracy')
+        plt.xlabel('Communication Rounds')
+        plt.savefig('../save/fed_hier_{}_{}_{}_C[{}]_iid[{}]_E[{}]_B[{}]_acc.png'.
+                    format(dataset, model, epochs, frac,
+                        iid, local_ep, local_bs))
