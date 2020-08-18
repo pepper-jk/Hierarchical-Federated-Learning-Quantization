@@ -101,12 +101,12 @@ if __name__ == '__main__':
         print('\nTrain loss:', loss_avg)
         epoch_loss.append(loss_avg)
 
-
     # testing
     test_acc, test_loss = update.test_inference(args, global_model, test_dataset, dtype=data_type)
     print('Test on', len(test_dataset), 'samples')
     print("Test Accuracy: {:.2f}%".format(100*test_acc))
 
+    print('\n Total Run Time: {0:0.4f}'.format(time.time()-start_time))
 
     # Saving the objects train_loss, test_acc, test_loss:
     file_name = '../save/objects{}/BaseSGD_{}_{}_epoch[{}]_lr[{}]_iid[{}]{}.pkl'.\
@@ -114,8 +114,6 @@ if __name__ == '__main__':
 
     with open(file_name, 'wb') as f:
         pickle.dump([epoch_loss, test_acc, test_loss], f)
-
-    print('\n Total Run Time: {0:0.4f}'.format(time.time()-start_time))
 
     # Plot loss
     if plot:

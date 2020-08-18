@@ -142,6 +142,8 @@ if __name__ == '__main__':
     print("|---- Avg Train Accuracy: {:.2f}%".format(100*train_accuracy[-1]))
     print("|---- Test Accuracy: {:.2f}%".format(100*test_acc))
 
+    print('\n Total Run Time: {0:0.4f}'.format(time.time()-start_time))
+
     # Saving the objects train_loss and train_accuracy:
     file_name = '../save/objects{}/FL_{}_{}_{}_lr[{}]_C[{}]_iid[{}]_E[{}]_B[{}]{}.pkl'.\
         format(appendage.lower(), dataset, model, epoch, learning_rate, frac,
@@ -149,8 +151,6 @@ if __name__ == '__main__':
 
     with open(file_name, 'wb') as f:
         pickle.dump([train_loss, train_accuracy], f)
-
-    print('\n Total Run Time: {0:0.4f}'.format(time.time()-start_time))
 
     # PLOTTING (optional)
     if plot:
