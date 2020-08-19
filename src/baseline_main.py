@@ -10,9 +10,9 @@ import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-import utils
 import options
 import update
+import utils
 
 
 if __name__ == '__main__':
