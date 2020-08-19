@@ -120,6 +120,7 @@ if __name__ == '__main__':
         weights_per_cluster.append(cluster_model_weights)
 
     train_loss, train_accuracy = [], []
+    test_losses, test_accuracies = [], []
     val_acc_list, net_list = [], []
     cv_loss, cv_acc = [], []
     print_every = 1
@@ -171,9 +172,10 @@ if __name__ == '__main__':
             print(f'Training Loss : {np.mean(np.array(train_loss))}')
             print('Train Accuracy: {:.2f}% \n'.format(100*train_accuracy[-1]))
 
-
-    # Test inference after completion of training
-    test_acc, test_loss = update.test_inference(args, global_model, test_dataset, dtype=data_type)
+        # Test inference after completion of training
+        test_acc, test_loss = update.test_inference(args, global_model, test_dataset, dtype=data_type)
+        test_accuracies.append(test_acc)
+        test_losses.append(test_loss)
 
     # print(f' \n Results after {epochs} global rounds of training:')
     print(f"\nAvg Training Stats after {epoch} global rounds:")
@@ -186,7 +188,7 @@ if __name__ == '__main__':
     exporter = output.data_exporter(dataset, model, epochs, learning_rate, iid, frac, local_ep, local_bs, num_clusters, appendage)
 
     # Saving the objects train_loss and train_accuracy:
-    exporter.dump_file([train_loss, train_accuracy])
+    exporter.dump_file([train_loss, train_accuracy, test_losses, test_accuracies])
 
     # PLOTTING (optional)
     if plot:

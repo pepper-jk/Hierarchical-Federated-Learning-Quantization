@@ -79,6 +79,7 @@ if __name__ == '__main__':
     criterion = torch.nn.NLLLoss().to(device, dtype=data_type)
 
     epoch_loss = []
+    test_losses, test_accuracies = [], []
 
     for epoch in tqdm(range(epochs)):
         batch_loss = []
@@ -102,10 +103,12 @@ if __name__ == '__main__':
         print('\nTrain loss:', loss_avg)
         epoch_loss.append(loss_avg)
 
-    # testing
-    test_acc, test_loss = update.test_inference(args, global_model, test_dataset, dtype=data_type)
-    print('Test on', len(test_dataset), 'samples')
-    print("Test Accuracy: {:.2f}%".format(100*test_acc))
+        # testing
+        test_acc, test_loss = update.test_inference(args, global_model, test_dataset, dtype=data_type)
+        test_accuracies.append(test_acc)
+        test_losses.append(test_loss)
+        print('Test on', len(test_dataset), 'samples')
+        print("Test Accuracy: {:.2f}%".format(100*test_acc))
 
     print('\n Total Run Time: {0:0.4f}'.format(time.time()-start_time))
 
@@ -113,7 +116,7 @@ if __name__ == '__main__':
     exporter = output.data_exporter(dataset, model, epochs, learning_rate, iid, model_name='BaseSGD')
 
     # Saving the objects test_acc, test_loss:
-    exporter.dump_file([epoch_loss, test_loss, test_acc])
+    exporter.dump_file([epoch_loss, test_losses, test_accuracies])
 
     # Plot loss
     if plot:
