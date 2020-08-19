@@ -64,46 +64,40 @@ class data_exporter():
             pickle.dump(data, f)
 
 
-    def plot_all(self, loss, accuracy):
+    def plot_all(self, loss, accuracy, train=False, x_label='Communication Rounds (Epochs)'):
         matplotlib.use('Agg')
 
         # Plot Loss curve
-        self.plot_loss(loss)
+        self.plot(loss, appendage='_loss', train=train, x_label=x_label)
 
         # Plot Average Accuracy vs Communication rounds
-        self.plot_accuracy(accuracy)
+        self.plot(accuracy, appendage='_acc', train=train, x_label=x_label)
 
-    def plot_loss(self, loss):
+    def plot(self, data, appendage, train=False, x_label='Communication Rounds (Epochs)'):
+
+        if train:
+            phase = 'Training'
+            appendage = '_train'+appendage
+        else:
+            phase = 'Testing'
+            appendage = '_test'+appendage
+
+        if 'loss' in appendage:
+            color='r'
+            data_type = 'Loss'
+        elif 'acc' in appendage:
+            color='k'
+            data_type = 'Average Accuracy'
+
+        y_label = f'{phase} {data_type}'
+
         plt.figure()
-        plt.title('Training Loss vs Communication rounds')
-        plt.plot(range(len(loss)), loss, color='r')
-        plt.ylabel('Training loss')
-        plt.xlabel('Communication Rounds')
+        plt.title(f'{y_label} vs {x_label}')
+        plt.plot(range(len(data)), data, color=color)
+        plt.ylabel(y_label)
+        plt.xlabel(x_label)
 
-        file_path = self.get_plot_file(appendage="_loss")
-        print("Saving plot at: ", file_path)
-
-        plt.savefig(file_path)
-
-    def plot_accuracy(self, accuracy):
-        plt.figure()
-        plt.title('Average Accuracy vs Communication rounds')
-        plt.plot(range(len(accuracy)), accuracy, color='k')
-        plt.ylabel('Average Accuracy')
-        plt.xlabel('Communication Rounds')
-
-        file_path = self.get_plot_file(appendage="_acc")
-        print("Saving plot at: ", file_path)
-
-        plt.savefig(file_path)
-
-    def plot_small(self, epoch_loss):
-        plt.figure()
-        plt.plot(range(len(epoch_loss)), epoch_loss)
-        plt.xlabel('epochs')
-        plt.ylabel('Train loss')
-
-        file_path = self.get_plot_file(appendage="_loss")
+        file_path = self.get_plot_file(appendage=appendage)
         print("Saving plot at: ", file_path)
 
         plt.savefig(file_path)
