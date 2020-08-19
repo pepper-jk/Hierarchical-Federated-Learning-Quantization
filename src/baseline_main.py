@@ -78,17 +78,19 @@ if __name__ == '__main__':
     trainloader = DataLoader(train_dataset, batch_size=64, shuffle=True)
     criterion = torch.nn.NLLLoss().to(device, dtype=data_type)
 
-    epoch_loss = []
+    epoch_loss, epoch_accuracy = [], []
     test_losses, test_accuracies = [], []
 
     for epoch in tqdm(range(epochs)):
         batch_loss = []
+        loss, total, correct = 0.0, 0.0, 0.0
 
         for batch_idx, (images, labels) in enumerate(trainloader):
             images, labels = images.to(device, dtype=data_type), labels.to(device)
 
             optimizer.zero_grad()
             outputs = global_model(images)
+
             loss = criterion(outputs, labels)
             loss.backward()
             optimizer.step()
@@ -99,9 +101,16 @@ if __name__ == '__main__':
                     100. * batch_idx / len(trainloader), loss.item()))
             batch_loss.append(loss.item())
 
+            _, pred_labels = torch.max(outputs, 1)
+            pred_labels = pred_labels.view(-1)
+            correct += torch.sum(torch.eq(pred_labels, labels)).item()
+            total += len(labels)
+
         loss_avg = sum(batch_loss)/len(batch_loss)
         print('\nTrain loss:', loss_avg)
         epoch_loss.append(loss_avg)
+
+        epoch_accuracy.append(correct/total)
 
         # testing
         test_acc, test_loss = update.test_inference(args, global_model, test_dataset, dtype=data_type)
@@ -116,9 +125,9 @@ if __name__ == '__main__':
     exporter = output.data_exporter(dataset, model, epochs, learning_rate, iid, model_name='BaseSGD')
 
     # Saving the objects test_acc, test_loss:
-    exporter.dump_file([epoch_loss, test_losses, test_accuracies])
+    exporter.dump_file([epoch_loss, epoch_accuracy, test_losses, test_accuracies])
 
     # Plot loss
     if plot:
-        exporter.plot(epoch_loss, appendage="_loss", train=True, x_label='epochs')
+        exporter.plot_all(epoch_loss, epoch_accuracy, train=True, x_label='epochs')
         exporter.plot_all(test_losses, test_accuracies, x_label='epochs')
