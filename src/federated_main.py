@@ -12,6 +12,7 @@ import torch
 from tqdm import tqdm
 
 import options
+import output
 import update
 import utils
 
@@ -144,36 +145,12 @@ if __name__ == '__main__':
 
     print('\n Total Run Time: {0:0.4f}'.format(time.time()-start_time))
 
-    # Saving the objects train_loss and train_accuracy:
-    file_name = '../save/objects{}/FL_{}_{}_{}_lr[{}]_C[{}]_iid[{}]_E[{}]_B[{}]{}.pkl'.\
-        format(appendage.lower(), dataset, model, epoch, learning_rate, frac,
-               iid, local_ep, local_bs, appendage)
+    # init the data exporter
+    exporter = output.data_exporter(dataset, model, epochs, learning_rate, iid, frac, local_ep, local_bs, appendage=appendage)
 
-    with open(file_name, 'wb') as f:
-        pickle.dump([train_loss, train_accuracy], f)
+    # Saving the objects train_loss and train_accuracy:
+    exporter.dump_file([train_loss, train_accuracy])
 
     # PLOTTING (optional)
     if plot:
-        import matplotlib
-        import matplotlib.pyplot as plt
-        matplotlib.use('Agg')
-
-        # Plot Loss curve
-        plt.figure()
-        plt.title('Training Loss vs Communication rounds')
-        plt.plot(range(len(train_loss)), train_loss, color='r')
-        plt.ylabel('Training loss')
-        plt.xlabel('Communication Rounds')
-        plt.savefig('../save/fed_{}_{}_{}_C[{}]_iid[{}]_E[{}]_B[{}]_loss.png'.
-                    format(dataset, model, epochs, frac,
-                        iid, local_ep, local_bs))
-
-        # Plot Average Accuracy vs Communication rounds
-        plt.figure()
-        plt.title('Average Accuracy vs Communication rounds')
-        plt.plot(range(len(train_accuracy)), train_accuracy, color='k')
-        plt.ylabel('Average Accuracy')
-        plt.xlabel('Communication Rounds')
-        plt.savefig('../save/fed_{}_{}_{}_C[{}]_iid[{}]_E[{}]_B[{}]_acc.png'.
-                    format(dataset, model, epochs, frac,
-                        iid, local_ep, local_bs))
+        exporter.plot_all(train_loss, train_accuracy, train=True)

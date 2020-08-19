@@ -11,6 +11,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 import options
+import output
 import update
 import utils
 
@@ -108,18 +109,12 @@ if __name__ == '__main__':
 
     print('\n Total Run Time: {0:0.4f}'.format(time.time()-start_time))
 
-    # Saving the objects train_loss, test_acc, test_loss:
-    file_name = '../save/objects{}/BaseSGD_{}_{}_epoch[{}]_lr[{}]_iid[{}]{}.pkl'.\
-        format(appendage.lower(), dataset, model, epoch, learning_rate, iid, appendage)
+    # init the data exporter
+    exporter = output.data_exporter(dataset, model, epochs, learning_rate, iid, model_name='BaseSGD')
 
-    with open(file_name, 'wb') as f:
-        pickle.dump([epoch_loss, test_acc, test_loss], f)
+    # Saving the objects test_acc, test_loss:
+    exporter.dump_file([epoch_loss, test_loss, test_acc])
 
     # Plot loss
     if plot:
-        plt.figure()
-        plt.plot(range(len(epoch_loss)), epoch_loss)
-        plt.xlabel('epochs')
-        plt.ylabel('Train loss')
-        plt.savefig('../save/nn_{}_{}_{}.png'.format(dataset, model,
-                                                    epochs))
+        exporter.plot(epoch_loss, appendage="_loss", train=True, x_label='epochs')
