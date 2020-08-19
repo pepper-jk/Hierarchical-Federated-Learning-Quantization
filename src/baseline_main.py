@@ -121,3 +121,4 @@ if __name__ == '__main__':
     # Plot loss
     if plot:
         exporter.plot(epoch_loss, appendage="_loss", train=True, x_label='epochs')
+        exporter.plot_all(test_losses, test_accuracies, x_label='epochs')

@@ -157,3 +157,4 @@ if __name__ == '__main__':
     # PLOTTING (optional)
     if plot:
         exporter.plot_all(train_loss, train_accuracy, train=True)
+        exporter.plot_all(test_losses, test_accuracies)
