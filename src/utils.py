@@ -91,15 +91,15 @@ def _get_dataset(dataset, iid, unequal, num_users):
     return train_dataset, test_dataset, user_groups
 
 
-def average_weights(w):
+def average_weights(w, data_percentages):
     """
     Returns the average of the weights.
     """
     w_avg = copy.deepcopy(w[0])
     for key in w_avg.keys():
-        for i in range(1, len(w)):
-            w_avg[key] += w[i][key]
-        w_avg[key] = torch.div(w_avg[key], len(w))
+        w_avg[key] = 0
+        for i in range(0, len(w)):
+            w_avg[key] += w[i][key] * data_percentages[i] / sum(data_percentages)
     return w_avg
 
 
@@ -222,4 +222,3 @@ def fl_train(args, train_dataset, cluster_global_model, cluster, usergrp, epochs
     print("Cluster accuracy: ", 100*sum(list_acc)/len(list_acc))
 
     return cluster_global_model, cluster_global_weights, cluster_loss_avg
-
