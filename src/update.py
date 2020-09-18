@@ -72,13 +72,13 @@ class LocalUpdate(object):
         elif self.optimizer == 'adam':
             optimizer = torch.optim.Adam(model.parameters(), lr=self.lr,
                                          weight_decay=1e-4)
-        elif optimizer == 'adagrad':
+        elif self.optimizer == 'adagrad':
             optimizer = torch.optim.Adagrad(model.parameters(), lr=self.lr,
                                         weight_decay=1e-4)
-        elif optimizer == 'adamax':
+        elif self.optimizer == 'adamax':
             optimizer = torch.optim.Adamax(model.parameters(), lr=self.lr,
                                         weight_decay=1e-4)
-        elif optimizer == 'rmsprop':
+        elif self.optimizer == 'rmsprop':
             optimizer = torch.optim.RMSprop(model.parameters(), lr=self.lr,
                                         weight_decay=1e-4)
         else:
