@@ -105,6 +105,7 @@ class LocalUpdate(object):
                 sample_size=len(self.trainloader.dataset),
                 alphas=self.alphas,
                 noise_multiplier=self.sigma,
+                secure_rng=True,
                 max_grad_norm=self.clip_max_per_sample_grad_norm,
             )
             privacy_engine.attach(optimizer)
