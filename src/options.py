@@ -54,6 +54,8 @@ def args_parser():
                         help='Clip per-sample gradients to this norm (default 1.0)')
     parser.add_argument('--alphas', nargs='+', type=float, default=None,
                         help='alpha orders for Renyi Differential Privacy')
+    parser.add_argument('--noise', type=str, default='gaussian', help="type \
+                        of noise")
 
     # other arguments
     parser.add_argument('--dataset', type=str, default='mnist', help="name \
