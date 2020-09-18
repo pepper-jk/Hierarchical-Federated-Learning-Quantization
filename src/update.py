@@ -4,11 +4,11 @@
 
 import sys
 import torch
-import torchdp
 
 from torch.utils.data import DataLoader, Dataset
 
 import utils
+import privacy_engine_xl as dp_xl
 
 
 class DatasetSplit(Dataset):
@@ -36,6 +36,7 @@ class LocalUpdate(object):
         self.sigma = args.sigma
         self.clip_max_per_sample_grad_norm = args.clip_max_per_sample_grad_norm
         self.alphas = args.alphas
+        self.noise = args.noise
         self.logger = logger
         self.verbose = args.verbose
         self.trainloader, self.validloader, self.testloader = self.train_val_test(
@@ -99,7 +100,7 @@ class LocalUpdate(object):
 
         # Differential Privacy
         if self.differential_privacy:
-            privacy_engine = torchdp.PrivacyEngine(
+            privacy_engine = dp_xl.PrivacyEngineXL(
                 model,
                 batch_size=self.local_bs,
                 sample_size=len(self.trainloader.dataset),
@@ -107,6 +108,7 @@ class LocalUpdate(object):
                 noise_multiplier=self.sigma,
                 secure_rng=True,
                 max_grad_norm=self.clip_max_per_sample_grad_norm,
+                noise_type=self.noise
             )
             privacy_engine.attach(optimizer)
 
