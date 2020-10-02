@@ -33,7 +33,7 @@ class LocalUpdate(object):
         self.local_ep = args.local_ep
         self.local_bs = args.local_bs
         self.differential_privacy = args.differential_privacy
-        self.sigma = args.sigma
+        self.sigma = args.sigma_local
         self.clip_max_per_sample_grad_norm = args.clip_max_per_sample_grad_norm
         self.alphas = args.alphas
         self.noise = args.noise
