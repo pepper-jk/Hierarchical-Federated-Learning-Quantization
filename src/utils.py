@@ -175,6 +175,7 @@ def fl_train(args, train_dataset, cluster_global_model, cluster, usergrp, epochs
 
     for epoch in range(epochs):
         cluster_local_weights, cluster_local_losses = [], []
+        local_percentages = []
         # print(f'\n | Cluster Training Round : {epoch+1} |\n')
 
         cluster_global_model.train()
@@ -192,9 +193,13 @@ def fl_train(args, train_dataset, cluster_global_model, cluster, usergrp, epochs
             cluster_local_weights.append(copy.deepcopy(cluster_w))
             cluster_local_losses.append(copy.deepcopy(cluster_loss))
             # print('| Global Round : {} | User : {} | \tLoss: {:.6f}'.format(epoch, idx, cluster_loss))
+            user_data = len(usergrp[idx])
+            total_data = sum((len(usergrp[idx]) for idx in cluster))
+            percentage = user_data / total_data
+            local_percentages.append(percentage)
 
         # averaging global weights
-        cluster_global_weights = average_weights(cluster_local_weights)
+        cluster_global_weights = average_weights(cluster_local_weights, local_percentages)
 
         # update global weights
         cluster_global_model.load_state_dict(cluster_global_weights)

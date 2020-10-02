@@ -104,9 +104,13 @@ if __name__ == '__main__':
                 # w = local model weights
             local_weights.append(copy.deepcopy(w))
             local_losses.append(copy.deepcopy(loss))
+            user_data = len(user_groups[idx])
+            total_data = sum((len(user_groups[idx]) for idx in range(num_users)))
+            percentage = user_data / total_data
+            local_percentages.append(percentage)
 
         # Averaging m local client weights
-        global_weights = utils.average_weights(local_weights)
+        global_weights = utils.average_weights(local_weights, local_percentages)
 
         # update global weights
         global_model.load_state_dict(global_weights)
