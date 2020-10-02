@@ -50,12 +50,20 @@ class LocalUpdate(object):
         idxs_val = idxs[int(0.8*len(idxs)):int(0.9*len(idxs))]
         idxs_test = idxs[int(0.9*len(idxs)):]
 
+        # TODO: is this the right solution
+        # what happens if the batch size of validation and training are not the same?
+        val_bs = int(len(idxs_val)/10) if len(idxs_val) >= 10 else len(idxs_val)
+        test_bs = int(len(idxs_test)/10) if len(idxs_val) >= 10 else len(idxs_test)
+
         trainloader = DataLoader(DatasetSplit(dataset, idxs_train),
-                                 batch_size=self.local_bs, shuffle=True)
+                                 batch_size=self.local_bs, shuffle=True,
+                                 drop_last=True)
         validloader = DataLoader(DatasetSplit(dataset, idxs_val),
-                                 batch_size=int(len(idxs_val)/10), shuffle=False)
+                                 batch_size=val_bs, shuffle=False,
+                                 drop_last=True)
         testloader = DataLoader(DatasetSplit(dataset, idxs_test),
-                                batch_size=int(len(idxs_test)/10), shuffle=False)
+                                batch_size=test_bs, shuffle=False,
+                                drop_last=True)
         return trainloader, validloader, testloader
 
     def update_weights(self, model, global_round, dtype=torch.float32):
