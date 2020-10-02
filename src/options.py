@@ -79,6 +79,9 @@ def args_parser():
 
     args = parser.parse_args()
 
+    if args.unequal == True:
+        args.iid = 0
+
     if args.floating_point_16 and not args.gpu:
         parser.error("floating_point_16 will only work on GPU (CUDA). Please specify --gpu and --gpu_id.")
 
