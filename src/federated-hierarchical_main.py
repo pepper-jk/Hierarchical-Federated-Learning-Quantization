@@ -15,6 +15,7 @@ from tqdm import tqdm
 
 import options
 import output
+import privacy_engine_xl as dp_xl
 import update
 import utils
 
@@ -37,6 +38,11 @@ if __name__ == '__main__':
     ## cluster arguments
     Cepochs = args.Cepochs
     num_clusters = args.num_clusters
+
+    # differential privacy
+    sigma_global = args.sigma_global
+    sigma_intermediate = args.sigma_intermediate
+    noise = args.noise
 
     ## for filesave
     model = args.model
@@ -138,7 +144,8 @@ if __name__ == '__main__':
         # ===== Clusters =====
 
         for i in range(0, num_clusters):
-            cluster_model, weights, losses = utils.fl_train(args, train_dataset, model_per_cluster[i], keylists_per_cluster[i], user_groups_per_cluster[i], Cepochs, logger, cluster_dtype=data_type)
+            cluster_model, weights, losses = utils.fl_train(args, train_dataset, model_per_cluster[i], keylists_per_cluster[i], user_groups_per_cluster[i], Cepochs, logger,
+                                                            local_bs, device, sigma_intermediate, noise, cluster_dtype=data_type)
             local_weights.append(copy.deepcopy(weights))
             local_losses.append(copy.deepcopy(losses))
             model_per_cluster[i] = global_model# = model
@@ -149,6 +156,9 @@ if __name__ == '__main__':
 
         # averaging global weights
         global_weights = utils.average_weights(local_weights, cluster_percentage)
+
+        if sigma_global != 0.0:
+            dp_xl.apply_noise(global_weights, local_bs, sigma_global, noise, device)
 
         # update global weights
         global_model.load_state_dict(global_weights)

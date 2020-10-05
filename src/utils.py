@@ -9,6 +9,7 @@ import sys
 
 from torchvision import datasets, transforms
 
+import privacy_engine_xl as dp_xl
 import update
 
 from models import MLP, CNNMnist, CNNFashion_Mnist, CNNCifar
@@ -162,7 +163,7 @@ def _build_model(model, dataset, mlpdim, num_classes, num_channels, train_datase
     return model
 
 
-def fl_train(args, train_dataset, cluster_global_model, cluster, usergrp, epochs, logger, cluster_dtype=torch.float32):
+def fl_train(args, train_dataset, cluster_global_model, cluster, usergrp, epochs, logger, local_bs, device, sigma=None, noise=None, cluster_dtype=torch.float32):
     """
     Defining the training function.
     """
@@ -200,6 +201,9 @@ def fl_train(args, train_dataset, cluster_global_model, cluster, usergrp, epochs
 
         # averaging global weights
         cluster_global_weights = average_weights(cluster_local_weights, local_percentages)
+
+        if sigma != 0.0:
+            dp_xl.apply_noise(cluster_global_weights, local_bs, sigma, noise, device)
 
         # update global weights
         cluster_global_model.load_state_dict(cluster_global_weights)
