@@ -13,6 +13,7 @@ from tqdm import tqdm
 
 import options
 import output
+import privacy_engine_xl as dp_xl
 import update
 import utils
 
@@ -31,6 +32,10 @@ if __name__ == '__main__':
     floating_point_16 = args.floating_point_16
     epochs = args.epochs
     num_users = args.num_users
+
+    # differential privacy
+    sigma_global = args.sigma_global
+    noise = args.noise
 
     ## for filesave
     model = args.model
@@ -111,6 +116,9 @@ if __name__ == '__main__':
 
         # Averaging m local client weights
         global_weights = utils.average_weights(local_weights, local_percentages)
+
+        if sigma_global != 0.0:
+            dp_xl.apply_noise(global_weights, local_bs, sigma_global, noise, device)
 
         # update global weights
         global_model.load_state_dict(global_weights)
