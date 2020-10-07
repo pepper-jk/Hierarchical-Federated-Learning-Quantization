@@ -5,7 +5,8 @@ import pickle
 
 class data_exporter():
 
-    def __init__(self, dataset, model, epochs, learning_rate, iid, frac=None, local_ep=None, local_bs=None, num_clusters="", appendage="", model_name=None):
+    def __init__(self, dataset, model, epochs, learning_rate, iid, frac=None, local_ep=None, local_bs=None, num_clusters="", appendage="",
+                 model_name=None, sigma_local=None, sigma_global=None, sigma_intermediate=None):
         self.dataset = dataset
         self.model = model
         self.epochs = epochs
@@ -17,6 +18,10 @@ class data_exporter():
         self.num_clusters = num_clusters
         self.appendage = appendage
         self.model_name = model_name
+
+        self.sigma_local = sigma_local
+        self.sigma_global = sigma_global
+        self.sigma_intermediate = sigma_intermediate
 
         if not self.model_name:
             self.model_name = '{}FL{}'.format('H' if self.num_clusters != "" else "", self.num_clusters)
@@ -31,6 +36,15 @@ class data_exporter():
         model_params = 'lr[{}]_iid[{}]'.format(self.learning_rate, self.iid)
         if self.frac:
             model_params = '{}_C[{}]_E[{}]_B[{}]'.format(model_params, self.frac, self.local_ep, self.local_bs)
+
+        if self.sigma_local or self.sigma_global or self.sigma_intermediate:
+            model_params = '{}_sigma'.format(model_params)
+        if self.sigma_local != None:
+            model_params = '{}_L[{}]'.format(model_params, self.sigma_local)
+        if self.sigma_global != None:
+            model_params = '{}_G[{}]'.format(model_params, self.sigma_global)
+        if self.sigma_intermediate != None:
+            model_params = '{}_I[{}]'.format(model_params, self.sigma_intermediate)
 
         model_base = '{}_{}_{}'.format(self.dataset, self.model, self.epochs)
 
