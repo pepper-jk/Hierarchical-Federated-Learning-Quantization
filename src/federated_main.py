@@ -34,6 +34,7 @@ if __name__ == '__main__':
     num_users = args.num_users
 
     # differential privacy
+    sigma_local = args.sigma_local
     sigma_global = args.sigma_global
     noise = args.noise
 
@@ -161,7 +162,8 @@ if __name__ == '__main__':
     print('\n Total Run Time: {0:0.4f}'.format(time.time()-start_time))
 
     # init the data exporter
-    exporter = output.data_exporter(dataset, model, epochs, learning_rate, iid, frac, local_ep, local_bs, appendage=appendage)
+    exporter = output.data_exporter(dataset, model, epochs, learning_rate, iid, frac, local_ep, local_bs, appendage=appendage,
+                                    sigma_local=sigma_local, sigma_global=sigma_global)
 
     # Saving the objects train_loss and train_accuracy:
     exporter.dump_file([train_loss, train_accuracy, test_losses, test_accuracies])
