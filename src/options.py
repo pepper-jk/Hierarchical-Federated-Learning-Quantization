@@ -46,15 +46,22 @@ def args_parser():
                         help="use floating point 16 for model")
 
     # differential privacy
-    parser.add_argument('-dp', '--differential_privacy', action='store_true', default=False, \
+    differential_privacy = parser.add_argument_group('differential_privacy',
+                                                     'All arguments related to differential privacy.\
+                                                      Per default local noise and clipping are used.\
+                                                      But if global or intermediate noise is set,\
+                                                      local noise is deactivated and needs to be explicitly\
+                                                      set in order to coexist.')
+
+    differential_privacy.add_argument('-dp', '--differential_privacy', action='store_true', default=False, \
                         help="use differential-privacy")
-    parser.add_argument('-s', '--sigma', type=float, default=1.0, \
+    differential_privacy.add_argument('-s', '--sigma', type=float, default=1.0, \
                         help="Noise multiplier (default 1.0)")
-    parser.add_argument('-c', '--clip_max_per_sample_grad_norm', type=float, default=1.0, \
+    differential_privacy.add_argument('-c', '--clip_max_per_sample_grad_norm', type=float, default=1.0, \
                         help='Clip per-sample gradients to this norm (default 1.0)')
-    parser.add_argument('--alphas', nargs='+', type=float, default=None,
+    differential_privacy.add_argument('--alphas', nargs='+', type=float, default=None,
                         help='alpha orders for Renyi Differential Privacy')
-    parser.add_argument('--noise', type=str, default='gaussian', help="type \
+    differential_privacy.add_argument('--noise', type=str, default='gaussian', help="type \
                         of noise")
 
     # other arguments
