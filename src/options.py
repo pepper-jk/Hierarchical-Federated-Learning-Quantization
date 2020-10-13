@@ -64,6 +64,20 @@ def args_parser():
     differential_privacy.add_argument('--noise', type=str, default='gaussian', help="type \
                         of noise")
 
+    differential_privacy.add_argument('-sl', '--sigma_local', type=float, default=0.0, \
+                        help="Explicit local noise multiplier")
+    differential_privacy.add_argument('-si', '--sigma_intermediate', type=float, default=0.0, \
+                        help="Explicit intermediate noise multiplier")
+    differential_privacy.add_argument('-sg', '--sigma_global', type=float, default=0.0, \
+                        help="Explicit global noise multiplier")
+
+    differential_privacy.add_argument('-nl', '--noise_local', action='store_true', default=None,
+                                      help="Apply local noise with general sigma value")
+    differential_privacy.add_argument('-ni', '--noise_intermediate', action='store_true', default=False,
+                                      help="Apply intermediate noise with general sigma value")
+    differential_privacy.add_argument('-ng', '--noise_global', action='store_true', default=False,
+                                      help="Apply global noise with general sigma value")
+
     # other arguments
     parser.add_argument('--dataset', type=str, default='mnist', help="name \
                         of datasetS")
@@ -110,5 +124,26 @@ def args_parser():
         # FIXME: find good default value
         # example: [1 + x / 10.0 for x in range(1, 100)] + list(range(12, 64))
         args.alphas = []
+
+    if args.noise_local or args.noise_global or args.noise_intermediate or args.sigma_local or args.sigma_global or args.sigma_intermediate:
+        args.differential_privacy = True
+
+    if args.differential_privacy and args.noise_local == None and args.sigma_local == None:
+        if args.noise_intermediate or args.noise_global:
+            # the user specified global or intermediate noise without explicitly specifying local noise
+            # they most likely do not want local noise
+            args.noise_local = False
+        else:
+            # local noise is the default
+            args.noise_local = True
+
+    if args.noise_local and not args.sigma_local:
+            args.sigma_local = args.sigma
+
+    if args.noise_intermediate and not args.sigma_intermediate:
+            args.sigma_intermediate = args.sigma
+
+    if args.noise_global and not args.sigma_global:
+            args.sigma_global = args.sigma
 
     return args
