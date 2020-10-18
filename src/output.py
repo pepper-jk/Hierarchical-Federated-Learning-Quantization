@@ -37,7 +37,7 @@ class data_exporter():
         if self.frac:
             model_params = '{}_C[{}]_E[{}]_B[{}]'.format(model_params, self.frac, self.local_ep, self.local_bs)
 
-        if self.sigma_local or self.sigma_global or self.sigma_intermediate:
+        if self.sigma_local != None or self.sigma_global != None or self.sigma_intermediate != None:
             model_params = '{}_sigma'.format(model_params)
         if self.sigma_local != None:
             model_params = '{}_L[{}]'.format(model_params, self.sigma_local)
