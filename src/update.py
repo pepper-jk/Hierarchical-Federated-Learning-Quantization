@@ -62,8 +62,7 @@ class LocalUpdate(object):
         test_bs = int(len(idxs_test)/10) if len(idxs_val) >= 10 else len(idxs_test)
 
         trainloader = DataLoader(DatasetSplit(dataset, idxs_train),
-                                 batch_size=self.local_bs, shuffle=True,
-                                 drop_last=True)
+                                 batch_size=self.local_bs, shuffle=True)
         validloader = DataLoader(DatasetSplit(dataset, idxs_val),
                                  batch_size=val_bs, shuffle=False,
                                  drop_last=True)
