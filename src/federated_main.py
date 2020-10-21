@@ -90,6 +90,7 @@ if __name__ == '__main__':
     # global training epochs
     for epoch in range(epochs):
         local_weights, local_losses = [], [] # init empty local weights and local losses
+        local_percentages = []
         print(f'\n | Global Training Round : {epoch+1} |\n') # starting with | Global Training Round : 1 |
 
         """
