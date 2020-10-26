@@ -134,6 +134,8 @@ if __name__ == '__main__':
     val_loss_pre, counter = 0, 0
     testacc_check, epoch = 0, 0
 
+    num_users_per_epoch = max(int(frac * num_users), 1)
+
     for epoch in range(epochs):
         local_weights, local_losses, local_accuracies= [], [], []
         cluster_percentage = []
@@ -146,7 +148,7 @@ if __name__ == '__main__':
 
         for i in range(0, num_clusters):
             cluster_model, weights, losses = utils.fl_train(args, train_dataset, model_per_cluster[i], keylists_per_cluster[i], user_groups_per_cluster[i], Cepochs, logger,
-                                                            local_bs, device, sigma_intermediate, noise, cluster_dtype=data_type)
+                                                            local_bs, device, sigma_intermediate, noise, num_users_per_epoch, cluster_dtype=data_type)
             local_weights.append(copy.deepcopy(weights))
             local_losses.append(copy.deepcopy(losses))
             model_per_cluster[i] = global_model# = model

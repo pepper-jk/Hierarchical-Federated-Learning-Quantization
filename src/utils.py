@@ -163,7 +163,7 @@ def _build_model(model, dataset, mlpdim, num_classes, num_channels, train_datase
     return model
 
 
-def fl_train(args, train_dataset, cluster_global_model, cluster, usergrp, epochs, logger, local_bs, device, sigma=None, noise=None, cluster_dtype=torch.float32):
+def fl_train(args, train_dataset, cluster_global_model, cluster, usergrp, epochs, logger, local_bs, device, sigma=None, noise=None, num_users_per_epoch: int=10, cluster_dtype=torch.float32):
     """
     Defining the training function.
     """
@@ -180,11 +180,7 @@ def fl_train(args, train_dataset, cluster_global_model, cluster, usergrp, epochs
         # print(f'\n | Cluster Training Round : {epoch+1} |\n')
 
         cluster_global_model.train()
-        # m = max(int(args.frac * len(cluster)), 1)
-        # m = max(int(math.ceil(args.frac * len(cluster))), 1)
-        m = min(int(len(cluster)), 10)
-        # print("=== m ==== ", m)
-        # m = 10
+        m = min(int(len(cluster)), num_users_per_epoch)
         idxs_users = np.random.choice(cluster, m, replace=False)
 
 
