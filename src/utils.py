@@ -61,8 +61,6 @@ def _get_dataset(dataset, iid, unequal, num_users):
         # Sample Non-IID user data from dataset
         if unequal:
             # Chose unequal splits for every user
-            if dataset_name == "CIFAR10":
-                raise NotImplementedError()
             print(f"Dataset: {dataset_name} unequal Non-IID")
             user_groups = sampling.sample_noniid_unequal(train_dataset, num_users)
         else:
