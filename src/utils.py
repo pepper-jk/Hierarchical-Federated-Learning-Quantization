@@ -10,11 +10,10 @@ import sys
 from torchvision import datasets, transforms
 
 import privacy_engine_xl as dp_xl
+import sampling
 import update
 
 from models import MLP, CNNMnist, CNNFashion_Mnist, CNNCifar
-from sampling import mnist_iid, mnist_noniid, mnist_noniid_unequal
-from sampling import cifar_iid, cifar_noniid
 
 
 def get_dataset(args):
@@ -28,6 +27,7 @@ def _get_dataset(dataset, iid, unequal, num_users):
 
     if dataset == 'cifar':
         data_dir = '../data/cifar/'
+        dataset_name = "CIFAR10"
         apply_transform = transforms.Compose(
             [transforms.ToTensor(),
              transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
@@ -37,25 +37,9 @@ def _get_dataset(dataset, iid, unequal, num_users):
 
         test_dataset = datasets.CIFAR10(data_dir, train=False, download=True,
                                       transform=apply_transform)
-
-        # sample training data amongst users
-        if iid:
-            # Sample IID user data from Mnist
-            print("Dataset: CIFAR10 IID")
-            user_groups = cifar_iid(train_dataset, num_users)
-        else:
-            # Sample Non-IID user data from Mnist
-            if unequal:
-                # Chose uneuqal splits for every user
-                raise NotImplementedError()
-            else:
-                # Chose euqal splits for every user
-                print("Dataset: CIFAR10 equal Non-IID")
-                user_groups = cifar_noniid(train_dataset, num_users)
-
-
     elif dataset == 'mnist':
         data_dir = '../data/mnist/'
+        dataset_name = "MNIST"
         apply_transform = transforms.Compose([
             transforms.ToTensor(),
             transforms.Normalize((0.1307,), (0.3081,))])
@@ -65,25 +49,27 @@ def _get_dataset(dataset, iid, unequal, num_users):
 
         test_dataset = datasets.MNIST(data_dir, train=False, download=True,
                                       transform=apply_transform)
-
-        # sample training data amongst users
-        if iid:
-            # Sample IID user data from Mnist
-            print("Dataset: MNIST IID")
-            user_groups = mnist_iid(train_dataset, num_users)
-        else:
-            # Sample Non-IID user data from Mnist
-            if unequal:
-                print("Dataset: MNIST unequal Non-IID")
-                # Chose uneuqal splits for every user
-                user_groups = mnist_noniid_unequal(train_dataset, num_users)
-            else:
-                # Chose equal splits for every user
-                print("Dataset: MNIST equal Non-IID")
-                user_groups = mnist_noniid(train_dataset, num_users)
-
     else:
         sys.exit("No such dataset: " + dataset)
+
+    # sample training data amongst users
+    if iid:
+        # Sample IID user data from dataset
+        print(f"Dataset: {dataset_name} IID")
+        user_groups = sampling.sample_iid(train_dataset, num_users)
+    else:
+        # Sample Non-IID user data from dataset
+        if unequal:
+            # Chose unequal splits for every user
+            if dataset_name == "CIFAR10":
+                raise NotImplementedError()
+            print(f"Dataset: {dataset_name} unequal Non-IID")
+            user_groups = sampling.sample_noniid_unequal(train_dataset, num_users)
+        else:
+            # Chose equal splits for every user
+            print(f"Dataset: {dataset_name} equal Non-IID")
+            # FIXME: CIFAR10 does not work with non-iid
+            user_groups = sampling.sample_noniid(train_dataset, num_users)
 
     return train_dataset, test_dataset, user_groups
 
