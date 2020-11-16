@@ -66,7 +66,6 @@ def _get_dataset(dataset, iid, unequal, num_users):
         else:
             # Chose equal splits for every user
             print(f"Dataset: {dataset_name} equal Non-IID")
-            # FIXME: CIFAR10 does not work with non-iid
             user_groups = sampling.sample_noniid(train_dataset, num_users)
 
     return train_dataset, test_dataset, user_groups
