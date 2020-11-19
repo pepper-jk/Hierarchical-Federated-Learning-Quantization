@@ -138,7 +138,7 @@ if __name__ == '__main__':
 
     for epoch in range(epochs):
         local_weights, local_losses, local_accuracies= [], [], []
-        cluster_percentage = []
+        cluster_data = []
         print(f'\n | Global Training Round : {epoch+1} |\n')
 
         # ============== TRAIN ==============
@@ -152,13 +152,11 @@ if __name__ == '__main__':
             local_weights.append(copy.deepcopy(weights))
             local_losses.append(copy.deepcopy(losses))
             model_per_cluster[i] = global_model# = model
-            total_data = sum((len(ug) for ugs in user_groups_per_cluster for ug in ugs.values()))
-            cluster_data = sum((len(ug) for ug in user_groups_per_cluster[i].values()))
-            percentage = cluster_data / total_data
-            cluster_percentage.append(percentage)
+            data = sum((len(ug) for ug in user_groups_per_cluster[i].values()))
+            cluster_data.append(data)
 
         # averaging global weights
-        global_weights = utils.average_weights(local_weights, cluster_percentage)
+        global_weights = utils.average_weights(local_weights, cluster_data)
 
         if sigma_global != 0.0:
             dp_xl.apply_noise(global_weights, local_bs, sigma_global, noise, device)

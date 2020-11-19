@@ -90,7 +90,7 @@ if __name__ == '__main__':
     # global training epochs
     for epoch in range(epochs):
         local_weights, local_losses = [], [] # init empty local weights and local losses
-        local_percentages = []
+        local_data = []
         print(f'\n | Global Training Round : {epoch+1} |\n') # starting with | Global Training Round : 1 |
 
         """
@@ -112,12 +112,10 @@ if __name__ == '__main__':
             local_weights.append(copy.deepcopy(w))
             local_losses.append(copy.deepcopy(loss))
             user_data = len(user_groups[idx])
-            total_data = sum((len(user_groups[idx]) for idx in range(num_users)))
-            percentage = user_data / total_data
-            local_percentages.append(percentage)
+            local_data.append(user_data)
 
         # Averaging m local client weights
-        global_weights = utils.average_weights(local_weights, local_percentages)
+        global_weights = utils.average_weights(local_weights, local_data)
 
         if sigma_global != 0.0:
             dp_xl.apply_noise(global_weights, local_bs, sigma_global, noise, device)
