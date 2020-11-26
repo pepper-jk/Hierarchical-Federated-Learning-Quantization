@@ -5,13 +5,15 @@ import pickle
 
 class data_exporter():
 
-    def __init__(self, dataset, model, epochs, learning_rate, iid, frac=None, local_ep=None, local_bs=None, num_clusters="", appendage="",
-                 model_name=None, sigma_local=None, sigma_global=None, sigma_intermediate=None):
+    def __init__(self, dataset, model, epochs, learning_rate, iid, unequal, frac=None, local_ep=None,
+                 local_bs=None, num_clusters="", appendage="", model_name=None, clip=None,
+                 sigma_local=None, sigma_global=None, sigma_intermediate=None):
         self.dataset = dataset
         self.model = model
         self.epochs = epochs
         self.learning_rate = learning_rate
         self.iid = iid
+        self.unequal = unequal
         self.frac = frac
         self.local_ep = local_ep
         self.local_bs = local_bs
@@ -19,6 +21,7 @@ class data_exporter():
         self.appendage = appendage
         self.model_name = model_name
 
+        self.clip = clip
         self.sigma_local = sigma_local
         self.sigma_global = sigma_global
         self.sigma_intermediate = sigma_intermediate
@@ -33,9 +36,12 @@ class data_exporter():
 
 
     def _get_file_name(self):
-        model_params = 'lr[{}]_iid[{}]'.format(self.learning_rate, self.iid)
+        model_params = 'lr[{}]_iid[{}]_unbalanced[{}]'.format(self.learning_rate, self.iid, self.unequal)
         if self.frac:
             model_params = '{}_C[{}]_E[{}]_B[{}]'.format(model_params, self.frac, self.local_ep, self.local_bs)
+
+        if self.clip != None:
+            model_params = '{}_clip[{}]'.format(model_params, self.clip)
 
         if self.sigma_local != None or self.sigma_global != None or self.sigma_intermediate != None:
             model_params = '{}_sigma'.format(model_params)

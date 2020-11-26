@@ -146,4 +146,7 @@ def args_parser():
     if args.noise_global and not args.sigma_global:
             args.sigma_global = args.sigma
 
+    if args.differential_privacy == False:
+        args.clip_max_per_sample_grad_norm = 0.0
+
     return args

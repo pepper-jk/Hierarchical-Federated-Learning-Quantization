@@ -33,6 +33,7 @@ if __name__ == '__main__':
     dataset = args.dataset
     learning_rate = args.learning_rate
     iid = args.iid
+    unequal = args.unequal
 
     ## plots
     plot = args.plot
@@ -122,7 +123,7 @@ if __name__ == '__main__':
     print('\n Total Run Time: {0:0.4f}'.format(time.time()-start_time))
 
     # init the data exporter
-    exporter = output.data_exporter(dataset, model, epochs, learning_rate, iid, model_name='BaseSGD')
+    exporter = output.data_exporter(dataset, model, epochs, learning_rate, iid, unequal, model_name='BaseSGD')
 
     # Saving the objects test_acc, test_loss:
     exporter.dump_file([epoch_loss, epoch_accuracy, test_losses, test_accuracies])
